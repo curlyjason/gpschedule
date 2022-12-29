@@ -11,11 +11,6 @@ trait PhinxHelperTrait
     {
         $table
             ->addColumn(
-                'id',
-                'integer',
-                ['limit' => MysqlAdapter::INT_REGULAR]
-            )
-            ->addColumn(
                 'created',
                 'datetime',
                 ['default' => null, 'null' => true,]
