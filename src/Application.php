@@ -131,6 +131,8 @@ class Application extends BaseApplication
 
         $this->addPlugin('Migrations');
 
-        // Load more plugins here
+        if (Configure::read('debug')) {
+            $this->addPlugin('CakephpFixtureFactories');
+        }
     }
 }
