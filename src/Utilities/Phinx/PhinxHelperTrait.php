@@ -37,12 +37,19 @@ trait PhinxHelperTrait
             ->addColumn(
                 $columnName,
                 'integer',
-                ['limit' => MysqlAdapter::INT_REGULAR, 'null' => false]
+                [
+                    'limit' => MysqlAdapter::INT_REGULAR,
+                    'null' => false,
+                    'signed' => false,
+                ]
             )
-            ->update();
-            $table
-                ->addForeignKey($columnName, $foreign_table_name, 'id', ['delete' => 'CASCADE'])
+            ->addForeignKey(
+                $columnName,
+                $foreign_table_name,
+                'id',
+                ['delete' => 'CASCADE',])
             ->update();
 
     }
+
 }
