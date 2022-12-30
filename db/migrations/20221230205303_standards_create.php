@@ -5,7 +5,7 @@ use App\Utilities\Phinx\PhinxHelperTrait;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 
-final class ProcessCreate extends AbstractMigration
+final class StandardsCreate extends AbstractMigration
 {
     use PhinxHelperTrait;
 
@@ -22,17 +22,27 @@ final class ProcessCreate extends AbstractMigration
      */
     public function change()
     {
-        $processTable = $this->table('processes');
-        $processTable
+        $standardsTable = $this->table('standards');
+        $standardsTable
             ->addColumn('process_code', 'char', ['limit' => 255])
-            ->addColumn('start_date', 'datetime', [])
-            ->addColumn('duration', 'integer', ['comment' => 'in minutes'])
-            ->addColumn('sequence', 'integer', ['comment' => 'order inside job'])
-            ->addColumn('department_priority', 'integer', ['comment' => 'order of priority inside department'])
-            ->addColumn('complete', 'integer', ['limit' => MysqlAdapter::INT_TINY, 'default' => 0])
             ->addColumn('name', 'char', ['limit' => 255])
+            ->addColumn('uom', 'char', ['limit' => 255])
+            ->addColumn('units_per_hour', 'float', ['default' => 0])
+            ->addColumn('daily_capacity', 'integer', ['limit' => MysqlAdapter::INT_REGULAR, 'comment' => 'in minutes'])
             ->create();
-        $this->requiredCakeNormColumns($processTable)
+        $this->requiredCakeNormColumns($standardsTable)
             ->update();
+
     }
+
+//    public function up()
+//    {
+//
+//    }
+//
+//    public function down()
+//    {
+//
+//    }
+
 }
