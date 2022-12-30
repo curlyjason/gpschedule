@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Test\TestCase\Traits;
+namespace App\Test\Traits;
 
 
 use Cake\ORM\Locator\LocatorAwareTrait;
