@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 
+use App\Utilities\Phinx\PhinxHelperTrait;
 use Phinx\Migration\AbstractMigration;
 
 final class JobCreate extends AbstractMigration
 {
-    use \App\Utilities\Phinx\PhinxHelperTrait;
+    use PhinxHelperTrait;
 
     /**
      * Change Method.
