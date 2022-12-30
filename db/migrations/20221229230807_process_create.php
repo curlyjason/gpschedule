@@ -23,7 +23,7 @@ final class ProcessCreate extends AbstractMigration
     public function change()
     {
         $processTable = $this->table('processes');
-        $this->requiredCakeNormColumns($processTable)
+        $processTable
             ->addColumn('start_date', 'datetime', [])
             ->addColumn('duration', 'integer', ['comment' => 'in minutes'])
             ->addColumn('sequence', 'integer', ['comment' => 'order inside job'])
@@ -31,5 +31,7 @@ final class ProcessCreate extends AbstractMigration
             ->addColumn('complete', 'integer', ['limit' => MysqlAdapter::INT_TINY, 'default' => 0])
             ->addColumn('name', 'char', ['limit' => 255])
             ->create();
+        $this->requiredCakeNormColumns($processTable)
+            ->update();
     }
 }

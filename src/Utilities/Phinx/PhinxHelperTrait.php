@@ -9,7 +9,13 @@ use Phinx\Db\Table;
 trait PhinxHelperTrait
 {
 
-    public function requiredCakeNormColumns($table)
+    /**
+     * Make 'created' and 'modified' for the table
+     *
+     * @param Table $table
+     * @return Table
+     */
+    public function requiredCakeNormColumns(Table $table): Table
     {
         $table
             ->addColumn(
@@ -26,22 +32,30 @@ trait PhinxHelperTrait
     }
 
     /**
-     * @param $table Table
-     * @param $foreign_table_name string
-     * @return void
+     * Make a link field and make it a required foreign-key
+     *
+     * @param Table $table
+     * @param string $foreign_table_name
+     * @param ?string $after
+     * @return Table $table
      */
-    public function requiredForeignKey($table, $foreign_table_name)
+    public function requiredForeignKey(Table $table, string $foreign_table_name, string $after = null): Table
     {
+        $options = [
+            'limit' => MysqlAdapter::INT_REGULAR,
+            'null' => false,
+            'signed' => false,
+        ];
+        if (!is_null($after)) {
+            $options['after'] = $after;
+        }
         $columnName = Inflector::singularize($foreign_table_name) . "_id";
+
         $table
             ->addColumn(
                 $columnName,
                 'integer',
-                [
-                    'limit' => MysqlAdapter::INT_REGULAR,
-                    'null' => false,
-                    'signed' => false,
-                ]
+                $options
             )
             ->addForeignKey(
                 $columnName,
@@ -50,6 +64,7 @@ trait PhinxHelperTrait
                 ['delete' => 'CASCADE',])
             ->update();
 
+        return $table;
     }
 
 }

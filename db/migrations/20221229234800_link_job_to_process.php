@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 
+use App\Utilities\Phinx\PhinxHelperTrait;
 use Phinx\Migration\AbstractMigration;
 
 final class LinkJobToProcess extends AbstractMigration
 {
-    use \App\Utilities\Phinx\PhinxHelperTrait;
+    use PhinxHelperTrait;
 
     /**
      * Change Method.
@@ -21,6 +22,6 @@ final class LinkJobToProcess extends AbstractMigration
     public function change()
     {
         $table = $this->table('processes');
-        $this->requiredForeignKey($table, 'jobs');
+        $this->requiredForeignKey($table, 'jobs', 'name');
     }
 }

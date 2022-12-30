@@ -20,10 +20,12 @@ final class JobCreate extends AbstractMigration
      */
     public function change()
     {
-        $processTable = $this->table('jobs');
-        $this->requiredCakeNormColumns($processTable)
+        $jobTable = $this->table('jobs');
+        $jobTable
             ->addColumn('due_date', 'datetime', [])
             ->addColumn('job_number', 'char', ['limit' => 255])
             ->create();
+        $this->requiredCakeNormColumns($jobTable)
+            ->update();
     }
 }
