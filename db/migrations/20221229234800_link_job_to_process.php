@@ -22,6 +22,7 @@ final class LinkJobToProcess extends AbstractMigration
     public function change()
     {
         $table = $this->table('processes');
-        $this->requiredForeignKey($table, 'jobs', 'name');
+        $this->requiredForeignKey($table, 'jobs', 'name')
+            ->update();
     }
 }
