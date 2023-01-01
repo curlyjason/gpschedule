@@ -8,12 +8,11 @@ use Cake\TestSuite\TestCase;
 
 class DepartmentTest extends TestCase
 {
-//    use RetrievalTrait;
+    use RetrievalTrait;
 
     public function test_sample()
     {
-        $data = DepartmentFactory::make(20)->getEntities();
-        debug($data);
-//        debug($this->getRecords('Departments'));
+        DepartmentFactory::make(20)->persist();
+        debug($this->getRecords('Departments'));
     }
 }
