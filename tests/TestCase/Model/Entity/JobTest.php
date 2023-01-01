@@ -2,7 +2,9 @@
 
 namespace App\Test\TestCase\Model\Entity;
 
-class JobTest
+use Cake\TestSuite\TestCase;
+
+class JobTest extends TestCase
 {
 
 }

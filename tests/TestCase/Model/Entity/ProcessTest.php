@@ -2,7 +2,9 @@
 
 namespace App\Test\TestCase\Model\Entity;
 
-class ProcessTest
+use Cake\TestSuite\TestCase;
+
+class ProcessTest extends TestCase
 {
 
 }
