@@ -1,65 +1,50 @@
 <?php
-declare(strict_types=1);
 
 namespace App\Test\TestCase\Model\Table;
 
-use App\Model\Table\TemplatesTable;
+use App\Test\Factory\TemplateFactory;
+use App\Test\Traits\RetrievalTrait;
 use Cake\TestSuite\TestCase;
 
-/**
- * App\Model\Table\TemplatesTable Test Case
- */
 class TemplatesTableTest extends TestCase
 {
-    /**
-     * Test subject
-     *
-     * @var \App\Model\Table\TemplatesTable
-     */
-    protected $Templates;
 
-    /**
-     * Fixtures
-     *
-     * @var array<string>
-     */
-    protected $fixtures = [
-        'app.Templates',
-        'app.Standards',
-    ];
+    use RetrievalTrait;
 
-    /**
-     * setUp method
-     *
-     * @return void
-     */
-    protected function setUp(): void
+    public function test_findAutomaticallyContainsStandards()
     {
-        parent::setUp();
-        $config = $this->getTableLocator()->exists('Templates') ? [] : ['className' => TemplatesTable::class];
-        $this->Templates = $this->getTableLocator()->get('Templates', $config);
+        $factory = TemplateFactory::make()
+            ->listeningToModelEvents(['Model.beforeFind']);
+        $persisted = $factory
+            ->withStandards(5)
+            ->persist();
+
+        $template = $factory->getTable()
+            ->find()
+            ->where(['id' => $persisted->id])
+            ->toArray();
+
+        $this->assertCount(
+            count($this->getRecords('Standards')),
+            $template[0]->standards
+        );
     }
 
-    /**
-     * tearDown method
-     *
-     * @return void
-     */
-    protected function tearDown(): void
+    public function test_getAutomaticallyContainsStandards()
     {
-        unset($this->Templates);
+        $factory = TemplateFactory::make()
+            ->listeningToModelEvents(['Model.beforeFind']);
+        $persisted = $factory
+            ->withStandards(5)
+            ->persist();
 
-        parent::tearDown();
+        $template = $factory->getTable()
+            ->get($persisted->id);
+
+        $this->assertCount(
+            count($this->getRecords('Standards')),
+            $template->standards
+        );
     }
 
-    /**
-     * Test validationDefault method
-     *
-     * @return void
-     * @uses \App\Model\Table\TemplatesTable::validationDefault()
-     */
-    public function testValidationDefault(): void
-    {
-        $this->markTestIncomplete('Not implemented yet.');
-    }
 }
