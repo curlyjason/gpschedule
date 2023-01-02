@@ -53,6 +53,7 @@ class TemplatesTable extends Table
             'foreignKey' => 'template_id',
             'targetForeignKey' => 'standard_id',
             'joinTable' => 'standards_templates',
+            'through' => 'standards_templates'
         ]);
     }
 
