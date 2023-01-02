@@ -9,9 +9,6 @@ class TemplatesTableTest extends \Cake\TestSuite\TestCase
 {
 
     use RetrievalTrait;
-    //Should always return with Standards?
-    //configure and test that basic config
-    //returns containment on simple find or get
 
     public function test_findAutomaticallyContainsStandards()
     {
@@ -29,6 +26,23 @@ class TemplatesTableTest extends \Cake\TestSuite\TestCase
         $this->assertCount(
             count($this->getRecords('Standards')),
             $template[0]->standards
+        );
+    }
+
+    public function test_getAutomaticallyContainsStandards()
+    {
+        $factory = TemplateFactory::make()
+            ->listeningToModelEvents(['Model.beforeFind']);
+        $persisted = $factory
+            ->withStandards(5)
+            ->persist();
+
+        $template = $factory->getTable()
+            ->get($persisted->id);
+
+        $this->assertCount(
+            count($this->getRecords('Standards')),
+            $template->standards
         );
     }
 
