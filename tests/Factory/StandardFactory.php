@@ -36,9 +36,48 @@ class StandardFactory extends CakephpBaseFactory
     {
         $this->setDefaultData(function (Generator $faker) {
             return [
-                'process_code' => $faker->numberBetween(1000,2000),
-                'name' => $faker->word
+                // set the model's default values
+                // For example:
+                // 'name' => $faker->lastName
             ];
         });
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @return StandardFactory
+     */
+    public function withDepartments($parameter = null): StandardFactory
+    {
+        return $this->with(
+            'Departments',
+            \App\Test\Factory\DepartmentFactory::make($parameter)
+        );
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @param int $n
+     * @return StandardFactory
+     */
+    public function withProcesses($parameter = null, int $n = 1): StandardFactory
+    {
+        return $this->with(
+            'Processes',
+            \App\Test\Factory\ProcessFactory::make($parameter, $n)
+        );
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @param int $n
+     * @return StandardFactory
+     */
+    public function withTemplates($parameter = null, int $n = 1): StandardFactory
+    {
+        return $this->with(
+            'Templates',
+            \App\Test\Factory\TemplateFactory::make($parameter, $n)->without('Standards')
+        );
     }
 }

@@ -7,7 +7,7 @@ use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
 /**
- * TemplateFactory
+ * templateFactory
  *
  * @method \App\Model\Entity\Template getEntity()
  * @method \App\Model\Entity\Template[] getEntities()
@@ -23,7 +23,7 @@ class TemplateFactory extends CakephpBaseFactory
      */
     protected function getRootTableRegistryName(): string
     {
-        return 'Templates';
+        return 'templates';
     }
 
     /**
@@ -41,5 +41,20 @@ class TemplateFactory extends CakephpBaseFactory
                 // 'name' => $faker->lastName
             ];
         });
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @param int $n
+     * @return TemplateFactory
+     */
+    public function withStandards($parameter = null, int $n = 1): TemplateFactory
+    {
+        return $this->with(
+            'Standards',
+            \App\Test\Factory\StandardFactory::make($parameter, $n)
+                ->without('templates')
+                ->withDepartments()
+        );
     }
 }
