@@ -13,6 +13,6 @@ class DepartmentTest extends TestCase
     public function test_sample()
     {
         DepartmentFactory::make(20)->persist();
-        debug($this->getRecords('Departments'));
+        debug(count($this->getRecords('Departments')));
     }
 }
