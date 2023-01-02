@@ -14,7 +14,7 @@ class TemplatesTableTest extends TestCase
     public function test_findAutomaticallyContainsStandards()
     {
         $factory = TemplateFactory::make()
-            ->listeningToModelEvents(['Model.beforeFind']);
+            /*->listeningToModelEvents(['Model.beforeFind'])*/;
         $persisted = $factory
             ->withStandards(5)
             ->persist();
@@ -33,7 +33,7 @@ class TemplatesTableTest extends TestCase
     public function test_getAutomaticallyContainsStandards()
     {
         $factory = TemplateFactory::make()
-            ->listeningToModelEvents(['Model.beforeFind']);
+            /*->listeningToModelEvents(['Model.beforeFind'])*/;
         $persisted = $factory
             ->withStandards(5)
             ->persist();
@@ -47,4 +47,10 @@ class TemplatesTableTest extends TestCase
         );
     }
 
+    public function test_StandardsContainedWhenTemplatesContained()
+    {
+
+    }
+
 }
+

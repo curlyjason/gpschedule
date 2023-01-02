@@ -40,7 +40,8 @@ class TemplateFactory extends CakephpBaseFactory
                 // For example:
                 // 'name' => $faker->lastName
             ];
-        });
+        })
+            ->listeningToModelEvents(['Model.beforeFind']);
     }
 
     /**
