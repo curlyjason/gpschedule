@@ -40,7 +40,8 @@ class StandardFactory extends CakephpBaseFactory
                 // For example:
                 // 'name' => $faker->lastName
             ];
-        });
+        })
+        ->withDepartments();
     }
 
     /**
@@ -51,7 +52,7 @@ class StandardFactory extends CakephpBaseFactory
     {
         return $this->with(
             'Departments',
-            \App\Test\Factory\DepartmentFactory::make($parameter)
+            DepartmentFactory::make($parameter)
         );
     }
 

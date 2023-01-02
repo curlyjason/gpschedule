@@ -53,9 +53,8 @@ class TemplateFactory extends CakephpBaseFactory
     {
         return $this->with(
             'Standards',
-            \App\Test\Factory\StandardFactory::make($parameter, $n)
+            StandardFactory::make($parameter, $n)
                 ->without('templates')
-                ->withDepartments()
         );
     }
 }
