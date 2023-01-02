@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use ArrayObject;
+use Cake\Event\EventInterface;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -69,4 +71,16 @@ class TemplatesTable extends Table
 
         return $validator;
     }
+
+    public function implementedEvents() : array
+    {
+        return [
+            'Model.beforeFind' => 'beforeFind',
+        ];
+    }
+    public function beforeFind(EventInterface $event, Query $query, ArrayObject $options, $primary)
+    {
+        $query->contain(['Standards']);
+    }
+
 }
