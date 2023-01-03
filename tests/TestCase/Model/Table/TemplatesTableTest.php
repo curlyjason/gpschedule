@@ -8,11 +8,13 @@ use App\Test\Factory\TemplateFactory;
 use App\Test\Traits\RetrievalTrait;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class TemplatesTableTest extends TestCase
 {
 
     use RetrievalTrait;
+    use ScenarioAwareTrait;
 
     public function test_findAutomaticallyContainsStandards()
     {
@@ -43,8 +45,6 @@ class TemplatesTableTest extends TestCase
 
         $template = $factory->getTable()
             ->get($persisted->id);
-
-        debug($template->toArray());
 
         $this->assertCount(
             count($this->getRecords('Standards')),
@@ -97,23 +97,8 @@ class TemplatesTableTest extends TestCase
 
     public function test_containedStandardsAreInProperOrder()
     {
-        $template = TemplateFactory::make();
+        $template = $this->loadFixtureScenario('MixedSequenceTemplate');
 
-        $template->withStandards(4)->persist();
-
-        $records = $this->getRecords('StandardsTemplates');
-        $sequence = [4,2,3,1];
-        $table = StandardsTemplateFactory::make()->getTable();
-        collection($records)->map(function($record, $index) use ($sequence, $table){
-            /**
-             * @var Entity $record
-             */
-            $record->set('sequence', $sequence[$index]);
-            $table->save($record);
-        })->toArray();
-
-        $template = $this->getFirst('Templates');
-        
         collection($template->standards)->map(function($standard, $index){
             $this->assertEquals($index+1, $standard->sequence);
         })->toArray();
