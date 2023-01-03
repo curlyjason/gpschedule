@@ -59,7 +59,7 @@ class StandardsTable extends Table
         $this->belongsToMany('Templates', [
             'foreignKey' => 'standard_id',
             'targetForeignKey' => 'template_id',
-            'joinTable' => 'standards_templates',
+//            'joinTable' => 'standards_templates',
             'through' => 'standards_templates'
         ]);
     }
