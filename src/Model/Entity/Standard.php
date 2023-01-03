@@ -46,4 +46,9 @@ class Standard extends Entity
         'processes' => true,
         'templates' => true,
     ];
+
+    public function _getSequence()
+    {
+        return $this->_joinData->sequence ?? null;
+    }
 }
