@@ -3,8 +3,10 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Test\Factory\DepartmentFactory;
+use App\Test\Factory\StandardsTemplateFactory;
 use App\Test\Factory\TemplateFactory;
 use App\Test\Traits\RetrievalTrait;
+use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 
 class TemplatesTableTest extends TestCase
@@ -93,8 +95,28 @@ class TemplatesTableTest extends TestCase
 
     }
 
+    public function test_containedStandardsAreInProperOrder()
+    {
+        $template = TemplateFactory::make();
 
+        $template->withStandards(4)->persist();
 
+        $records = $this->getRecords('StandardsTemplates');
+        $sequence = [4,2,3,1];
+        $table = StandardsTemplateFactory::make()->getTable();
+        collection($records)->map(function($record, $index) use ($sequence, $table){
+            /**
+             * @var Entity $record
+             */
+            $record->set('sequence', $sequence[$index]);
+            $table->save($record);
+        })->toArray();
 
+        $template = $this->getFirst('Templates');
+        
+        collection($template->standards)->map(function($standard, $index){
+            $this->assertEquals($index+1, $standard->sequence);
+        })->toArray();
+    }
 }
 
