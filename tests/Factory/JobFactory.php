@@ -43,7 +43,8 @@ class JobFactory extends CakephpBaseFactory
                 'created' => '2022-12-30 22:20:48',
                 'modified' => '2022-12-30 22:20:48',
             ];
-        });
+        })
+        ->withItems();
     }
 
     /**
