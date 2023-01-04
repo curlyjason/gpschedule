@@ -47,8 +47,8 @@ class Standard extends Entity
         'templates' => true,
     ];
 
-    public function _getSequence()
+    public function _getPrereq()
     {
-        return $this->_joinData->sequence ?? null;
+        return $this->_joinData->prereq ?? null;
     }
 }

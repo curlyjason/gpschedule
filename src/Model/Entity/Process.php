@@ -14,7 +14,7 @@ use Cake\ORM\Entity;
  * @property string|null $process_code
  * @property \Cake\I18n\FrozenTime|null $start_date
  * @property int|null $duration
- * @property int|null $sequence
+ * @property int|null $prereq
  * @property int|null $department_priority
  * @property int|null $complete
  * @property string|null $name
@@ -43,7 +43,7 @@ class Process extends Entity
         'process_code' => true,
         'start_date' => true,
         'duration' => true,
-        'sequence' => true,
+        'prereq' => true,
         'department_priority' => true,
         'complete' => true,
         'name' => true,

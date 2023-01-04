@@ -54,7 +54,7 @@ class TemplatesTable extends Table
             'targetForeignKey' => 'standard_id',
 //            'joinTable' => 'standards_templates',
             'through' => 'standards_templates',
-            'sort' => ['standards_templates.sequence' => 'ASC']
+            'sort' => ['standards_templates.prereq' => 'ASC']
         ]);
     }
 

@@ -93,8 +93,8 @@ class ProcessesTable extends Table
             ->allowEmptyString('duration');
 
         $validator
-            ->integer('sequence')
-            ->allowEmptyString('sequence');
+            ->integer('prereq')
+            ->allowEmptyString('prereq');
 
         $validator
             ->integer('department_priority')
