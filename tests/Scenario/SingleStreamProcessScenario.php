@@ -7,6 +7,7 @@ use App\Test\Factory\JobFactory;
 use App\Test\Factory\ProcessFactory;
 use App\Test\Traits\RetrievalTrait;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
+use mysql_xdevapi\Collection;
 use function PHPUnit\Framework\isEmpty;
 
 class SingleStreamProcessScenario implements FixtureScenarioInterface
@@ -22,7 +23,6 @@ class SingleStreamProcessScenario implements FixtureScenarioInterface
     public function load(...$args)
     {
         $args = (func_get_args());
-        debug($args);
         if(isEmpty($args) || ! $args[0] instanceof Job){
             $job = JobFactory::make()->persist();
         } else {
@@ -30,7 +30,27 @@ class SingleStreamProcessScenario implements FixtureScenarioInterface
         }
         $processes = ProcessFactory::make($this->basicProcessArray($job))->persist();
 
-        debug($processes);
+        $process_ids = collection($processes)->extract('id')->shuffle()->toList();
+
+        $processes = collection($processes)->map(function($process, $index) use (&$process_ids){
+            if($index === 0) {
+                return $process;
+            }
+            while($process->id === $process_ids[0]){
+                $process_ids = collection($process_ids)->shuffle()->toList();
+            }
+            $process->set('prereq', array_shift($process_ids));
+            return $process;
+        })->toArray();
+
+        $patch = collection($processes)->map(function($process){
+            return [
+                'id' => $process->id,
+                'prereq' => $process->prereq
+            ];
+        })->toArray();
+
+        debug($patch);
     }
 
     private function basicProcessArray(Job $job, $count = 5)
