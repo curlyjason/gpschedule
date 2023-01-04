@@ -42,7 +42,8 @@ class ProcessFactory extends CakephpBaseFactory
                 'name' => $faker->word
             ];
         })
-        ->withDepartments();
+        ->withDepartments()
+        ->withStandards();
     }
 
     /**
