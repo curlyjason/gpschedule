@@ -36,8 +36,38 @@ class JobFactory extends CakephpBaseFactory
     {
         $this->setDefaultData(function (Generator $faker) {
             return [
-                'due_date' => $faker->dateTimeThisMonth,
+                'id' => 1,
+                'item_id' => 1,
+                'due_date' => '2022-12-30 22:20:48',
+                'job_number' => '23-10045',
+                'created' => '2022-12-30 22:20:48',
+                'modified' => '2022-12-30 22:20:48',
             ];
         });
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @return JobFactory
+     */
+    public function withItems($parameter = null): JobFactory
+    {
+        return $this->with(
+            'Items',
+            ItemFactory::make($parameter)
+        );
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @param int $n
+     * @return JobFactory
+     */
+    public function withProcesses($parameter = null, int $n = 1): JobFactory
+    {
+        return $this->with(
+            'Processes',
+            ProcessFactory::make($parameter, $n)
+        );
     }
 }
