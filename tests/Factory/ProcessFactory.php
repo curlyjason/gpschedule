@@ -41,6 +41,43 @@ class ProcessFactory extends CakephpBaseFactory
                 'duration' => $faker->numberBetween(15, 120),
                 'name' => $faker->word
             ];
-        });
+        })
+        ->withDepartments();
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @return ProcessFactory
+     */
+    public function withDepartments($parameter = null): ProcessFactory
+    {
+        return $this->with(
+            'Departments',
+            \App\Test\Factory\DepartmentFactory::make($parameter)
+        );
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @return ProcessFactory
+     */
+    public function withStandards($parameter = null): ProcessFactory
+    {
+        return $this->with(
+            'Standards',
+            \App\Test\Factory\StandardFactory::make($parameter)
+        );
+    }
+
+    /**
+     * @param array|callable|null|int $parameter
+     * @return ProcessFactory
+     */
+    public function withJobs($parameter = null): ProcessFactory
+    {
+        return $this->with(
+            'Jobs',
+            \App\Test\Factory\JobFactory::make($parameter)
+        );
     }
 }
