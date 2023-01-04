@@ -12,7 +12,7 @@ class ProcessSetTest extends TestCase
 
     public function test_construct()
     {
-        $job = JobFactory::make()->persist();
-        $this->loadFixtureScenario('SingleStreamProcess', $job);
+//        $job = JobFactory::make()->persist();
+        $this->loadFixtureScenario('SingleStreamProcess');
     }
 }
