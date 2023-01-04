@@ -36,8 +36,6 @@ class JobFactory extends CakephpBaseFactory
     {
         $this->setDefaultData(function (Generator $faker) {
             return [
-                'id' => 1,
-                'item_id' => 1,
                 'due_date' => '2022-12-30 22:20:48',
                 'job_number' => '23-10045',
                 'created' => '2022-12-30 22:20:48',
