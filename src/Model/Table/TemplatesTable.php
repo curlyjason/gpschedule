@@ -52,9 +52,8 @@ class TemplatesTable extends Table
         $this->belongsToMany('Standards', [
             'foreignKey' => 'template_id',
             'targetForeignKey' => 'standard_id',
-//            'joinTable' => 'standards_templates',
             'through' => 'standards_templates',
-            'sort' => ['standards_templates.prereq' => 'ASC']
+            'sort' => ['standards_templates.sequence' => 'ASC']
         ]);
     }
 
