@@ -3,6 +3,7 @@
 namespace App\Utilities;
 
 use App\Model\Entity\Process;
+use Cake\Utility\Hash;
 
 class ProcessSet
 {
@@ -48,11 +49,8 @@ class ProcessSet
 
     public function getChildIterator()
     {
-
-        return new \RecursiveArrayIterator(
-            $this->childIteratorSeed(
-                $this->getFollowersOf('')
-            ));
+        $this->iteratorSeed = $this->iteratorSeed ?? $this->childIteratorSeed($this->getFollowersOf(''));
+        return new \RecursiveArrayIterator($this->childIteratorSeed($this->iteratorSeed));
     }
 
     private function getInitialProcessesKeys()
@@ -73,7 +71,9 @@ class ProcessSet
 
     protected function childIteratorSeed($followers)
     {
+        debug($followers);
             collection ($followers)->map(function($follower){
+                debug($follower);
                 $this->iteratorSeed[] = $follower;
                 $this->childIteratorSeed($this->getFollowersOf($follower));
             })->toArray();
