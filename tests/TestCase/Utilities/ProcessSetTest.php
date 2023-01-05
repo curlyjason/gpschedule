@@ -2,6 +2,7 @@
 
 namespace App\Test\TestCase\Utilities;
 
+use App\Test\TestDoubles\ProcessSetDouble;
 use App\Test\Traits\RetrievalTrait;
 use App\Utilities\ProcessSet;
 use Cake\TestSuite\TestCase;
@@ -15,7 +16,7 @@ class ProcessSetTest extends TestCase
     public function test_construct()
     {
         $this->loadFixtureScenario('SingleStreamProcess');
-        $SetManager = new ProcessSet($this->getRecords('Processes'));
+        $SetManager = new ProcessSetDouble($this->getRecords('Processes'));
     }
 
 }

@@ -22,7 +22,7 @@ class ProcessSet
             ->toArray();
         $this->buildFollowerLookup();
         $this->childIteratorSeed();
-        debug($this->keyedByPrereq);
+        debug($this->getInitialProcessesKeys());
     }
 
     /**
@@ -40,7 +40,7 @@ class ProcessSet
      */
     public function getFollowersOf($key)
     {
-        return $this->keyedByPrereq[$key]->prereq;
+        return $this->keyedByPrereq[$key] ?? [];
     }
 
     public function getProcess($key)
@@ -53,14 +53,9 @@ class ProcessSet
         return new \RecursiveArrayIterator($this->childIteratorSeed());
     }
 
-    private function getInitialProcesses()
+    private function getInitialProcessesKeys()
     {
-        $starts = $this->getFollowersOf('');
-        return collection($starts)
-            ->map(function($start) {
-                return $this->getProcess($start);
-            })
-            ->toArray();
+        return $this->getFollowersOf('');
     }
 
     private function buildFollowerLookup()
@@ -74,7 +69,7 @@ class ProcessSet
             ->toArray();
     }
 
-    private function childIteratorSeed()
+    protected function childIteratorSeed()
     {
         if (is_null($this->iteratorSeed)) {
             $this->iteratorSeed = collection($this->keyedByPrereq)
