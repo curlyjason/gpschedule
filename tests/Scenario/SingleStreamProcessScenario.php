@@ -43,14 +43,16 @@ class SingleStreamProcessScenario implements FixtureScenarioInterface
             return $process;
         })->toArray();
 
-        $patch = collection($processes)->map(function($process){
-            return [
+        $table = ProcessFactory::make()->getTable();
+        $patch = collection($processes)->map(function($process) use($table) {
+            $patch = [
                 'id' => $process->id,
                 'prereq' => $process->prereq
             ];
+            $table->patchEntity($process, $patch);
+            $table->save($process);
         })->toArray();
 
-        debug($patch);
     }
 
     private function basicProcessArray(Job $job, $count = 5)
