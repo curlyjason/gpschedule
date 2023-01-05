@@ -73,12 +73,11 @@ class ProcessSet
 
     protected function childIteratorSeed($followers)
     {
-        if (is_null($this->iteratorSeed)) {
             collection ($followers)->map(function($follower){
                 $this->iteratorSeed[] = $follower;
                 $this->childIteratorSeed($this->getFollowersOf($follower));
             })->toArray();
-        }
+
         return $this->iteratorSeed;
     }
 
