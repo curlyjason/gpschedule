@@ -2,18 +2,20 @@
 
 namespace App\Test\TestCase\Utilities;
 
-use App\Test\Factory\JobFactory;
+use App\Test\Traits\RetrievalTrait;
+use App\Utilities\ProcessSet;
 use Cake\TestSuite\TestCase;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class ProcessSetTest extends TestCase
 {
     use ScenarioAwareTrait;
+    use RetrievalTrait;
 
     public function test_construct()
     {
-//        $job = JobFactory::make()->persist();
         $this->loadFixtureScenario('SingleStreamProcess');
+        $SetManager = new ProcessSet($this->getRecords('Processes'));
     }
 
 }
