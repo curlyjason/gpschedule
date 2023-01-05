@@ -7,7 +7,7 @@ use App\Model\Entity\Process;
 class ProcessSet
 {
     private array $keydById;
-    private array $keyedByPrereq;
+    protected array $keyedByPrereq;
     private ?array $iteratorSeed = null;
 
     /**
@@ -21,7 +21,6 @@ class ProcessSet
             })
             ->toArray();
         $this->buildFollowerLookup();
-        debug($this->getInitialProcessesKeys());
     }
 
     /**
@@ -75,19 +74,10 @@ class ProcessSet
     protected function childIteratorSeed($followers)
     {
         if (is_null($this->iteratorSeed)) {
-            $this->iteratorSeed = collection($this->keyedByPrereq)
-                ->reduce(function($accum, $followers, $prereq) {
-                    if (count($followers) < 2) {
-                        $accum[$prereq] = $this->getProcess($followers[0] ?? null);
-                    }
-                    else {
-                        $accum[$prereq] = collection($followers)
-                            ->map(function($follower) {
-                                return $this->getProcess($follower);
-                            })
-                            ->toArray();
-                    }
-                }, []);
+            collection ($followers)->map(function($follower){
+                $this->iteratorSeed[] = $follower;
+                $this->childIteratorSeed($this->getFollowersOf($follower));
+            })->toArray();
         }
         return $this->iteratorSeed;
     }
