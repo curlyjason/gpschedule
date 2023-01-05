@@ -31,8 +31,9 @@ class ProcessSetTest extends TestCase
         $SetManager = new ProcessSetDouble([]);
         $SetManager->setKeyedByPrereq($prereqLookup);
         debug($SetManager);
-        $result = $SetManager->childIteratorSeed($SetManager->getFollowersOf(''));
-        debug($result);
+        $actual = $SetManager->childIteratorSeed($SetManager->getFollowersOf(''));
+        debug($actual);
+        $this->assertEquals($expectedResult, $actual);
     }
 
     public function process_sorter_provider()
@@ -52,6 +53,22 @@ class ProcessSetTest extends TestCase
 //                    ['b'],
 //                ]
 //            ],
+            [
+                /**
+                 *simple split
+                 */
+                'prereqLookup' => [
+                    '' => ['a', 'b'],
+                    'a' => ['c'],
+                    'b' => ['d'],
+                    'c' => [],
+                    'd' => []
+                ],
+                'expectedResult' => [
+                    ['a', 'c'],
+                    ['b', 'd'],
+                ]
+            ],
 //            [
 //                /**
 //                 *single starts with no following steps
@@ -64,20 +81,20 @@ class ProcessSetTest extends TestCase
 //                    'a',
 //                ]
 //            ],
-            [
-                /**
-                 *straight line list
-                 */
-                'prereqLookup' => [
-                    '' => ['a'],
-                    'a' => ['a.b'],
-                    'a.b' => ['b.c'],
-                    'b.c' => []
-                ],
-                'expectedResult' => [
-                    'a', 'a.b', 'b.c'
-                ]
-            ],
+//            [
+//                /**
+//                 *straight line list
+//                 */
+//                'prereqLookup' => [
+//                    '' => ['a'],
+//                    'a' => ['a.b'],
+//                    'a.b' => ['b.c'],
+//                    'b.c' => []
+//                ],
+//                'expectedResult' => [
+//                    'a', 'a.b', 'b.c'
+//                ]
+//            ],
 //            [
 //                /**
 //                 *single split

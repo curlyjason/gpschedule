@@ -9,7 +9,7 @@ class ProcessSet
 {
     private array $keydById;
     protected array $keyedByPrereq;
-    private ?array $iteratorSeed = null;
+    protected array $iteratorSeed = [];
 
     /**
      * @param Process[] $processes
@@ -69,16 +69,36 @@ class ProcessSet
             ->toArray();
     }
 
-    protected function childIteratorSeed($followers)
+    protected function childIteratorSeed($followers, $path = '0')
     {
         debug($followers);
-            collection ($followers)->map(function($follower){
-                debug($follower);
-                $this->iteratorSeed[] = $follower;
-                $this->childIteratorSeed($this->getFollowersOf($follower));
-            })->toArray();
+
+        collection ($followers)->map(function($follower, $index) use ($path, $followers){
+            debug($follower);
+            if(count($followers) > 1){
+                $path .= ".$index";
+            }
+            debug($path);
+            $this->iteratorSeed = Hash::insert($this->iteratorSeed, (string) $path, $follower);
+            $path = $this->incrementPath($path);
+            $this->childIteratorSeed($this->getFollowersOf($follower), $path);
+        })->toArray();
 
         return $this->iteratorSeed;
     }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    private function incrementPath(string $path)
+    {
+        $pathArray = explode('.', $path);
+        $last = array_pop($pathArray);
+        $pathArray[] = ++$last;
+        return implode('.', $pathArray);
+    }
+
+
 
 }
