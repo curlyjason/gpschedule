@@ -17,6 +17,58 @@ class ProcessSetTest extends TestCase
     {
         $this->loadFixtureScenario('SingleStreamProcess');
         $SetManager = new ProcessSetDouble($this->getRecords('Processes'));
+
+        /**
+         *
+         */
+        $lookup = [
+            '' => ['a', 'b'],
+            'a' => [],
+            'b' => [],
+        ];
+        $result = [
+            ['a'],
+            ['b'],
+        ];
+
+        /**
+         *
+         */
+        $lookup = [
+            '' => ['a'],
+            'a' => [],
+        ];
+        $result = [
+            'a',
+        ];
+
+        /**
+         *
+         */
+        $lookup = [
+            '' => ['a', 'b'],
+            'a' => ['a.a'],
+            'b' => ['b.a'],
+            'a.a' => [],
+            'b.a' => [],
+        ];
+        $result = [
+            ['a', 'a.a'],
+            ['b', 'b.a'],
+        ];
+
+        /**
+         *
+         */
+        $lookup = [
+            '' => ['a'],
+            'a' => ['a.a'],
+            'a.a' => [],
+        ];
+        $result = [
+            ['a', 'a.a'],
+        ];
+
     }
 
 }
