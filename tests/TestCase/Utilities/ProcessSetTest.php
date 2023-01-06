@@ -16,7 +16,11 @@ class ProcessSetTest extends TestCase
     public function test_construct()
     {
         $this->loadFixtureScenario('SingleStreamProcess');
-        $SetManager = new ProcessSetDouble($this->getRecords('Processes'));
+        $processes = $this->getRecords('Processes');
+
+        $SetManager = new ProcessSetDouble($processes);
+
+        $this->assertInstanceOf(ProcessSet::class, $SetManager);
 
     }
 
@@ -133,6 +137,18 @@ class ProcessSetTest extends TestCase
                 ]
             ],
         ];
+    }
+
+    public function test_getIterator()
+    {
+        $this->loadFixtureScenario('SingleStreamProcess');
+        $processes = $this->getRecords('Processes'); //straight line schedule
+
+        $iterator = (new ProcessSetDouble($processes))->getIterator();
+
+        $this->assertInstanceOf(\RecursiveArrayIterator::class, $iterator);
+
+
     }
 
 }
