@@ -26,18 +26,18 @@ class ProcessSet
 
     /**
      * @param $key
-     * @return mixed
+     * @return string
      */
-    public function getPrereqOf($key)
+    public function getPrereqOf($key): string
     {
-        return $this->keydById[$key]->prereq;
+        return $this->keydById[$key];
     }
 
     /**
      * @param $key
-     * @return mixed
+     * @return array
      */
-    public function getFollowersOf($key)
+    public function getFollowersOf($key): array
     {
         return $this->keyedByPrereq[$key] ?? [];
     }
@@ -47,7 +47,7 @@ class ProcessSet
         return $this->keydById[$key] ?? null;
     }
 
-    public function getChildIterator()
+    public function getChildIterator(): \RecursiveArrayIterator
     {
         $this->iteratorSeed = empty($this->iteratorSeed)
             ? $this->childIteratorSeed($this->getFollowersOf(''))
@@ -55,7 +55,7 @@ class ProcessSet
         return new \RecursiveArrayIterator($this->childIteratorSeed($this->iteratorSeed));
     }
 
-    private function getInitialProcessesKeys()
+    private function getInitialProcessesKeys(): array
     {
         return $this->getFollowersOf('');
     }
@@ -71,7 +71,7 @@ class ProcessSet
             ->toArray();
     }
 
-    protected function childIteratorSeed($followers, $path = '0')
+    protected function childIteratorSeed($followers, $path = '0'): array
     {
         $split = count($followers) > 1;
 
@@ -92,7 +92,7 @@ class ProcessSet
      * @param string $path
      * @return string
      */
-    private function incrementPath(string $path)
+    private function incrementPath(string $path): string
     {
         $pathArray = explode('.', $path);
         $last = array_pop($pathArray);
@@ -100,12 +100,12 @@ class ProcessSet
         return implode('.', $pathArray);
     }
 
-    private function split(mixed $path, $index)
+    private function split(mixed $path, $index): string
     {
         $pathArray = explode('.', $path);
         $last = array_pop($pathArray);
         $pathArray[] = ($last + $index) . '.0';
         return implode('.', $pathArray);
     }
-    
+
 }
