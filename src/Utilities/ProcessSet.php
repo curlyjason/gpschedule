@@ -4,6 +4,7 @@ namespace App\Utilities;
 
 use App\Model\Entity\Process;
 use Cake\Utility\Hash;
+use RecursiveArrayIterator;
 
 class ProcessSet
 {
@@ -47,12 +48,12 @@ class ProcessSet
         return $this->keydById[$key] ?? null;
     }
 
-    public function getChildIterator(): \RecursiveArrayIterator
+    public function getChildIterator(): RecursiveArrayIterator
     {
         $this->iteratorSeed = empty($this->iteratorSeed)
             ? $this->initIteratorSeed($this->getFollowersOf(''))
             : $this->iteratorSeed;
-        return new \RecursiveArrayIterator($this->initIteratorSeed($this->iteratorSeed));
+        return new RecursiveArrayIterator($this->iteratorSeed);
     }
 
     private function getInitialProcessesKeys(): array
