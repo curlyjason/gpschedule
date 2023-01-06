@@ -31,7 +31,7 @@ class ProcessSetTest extends TestCase
         $SetManager = new ProcessSetDouble([]);
         $SetManager->setKeyedByPrereq($prereqLookup);
 
-        $actual = $SetManager->initIteratorSeed($SetManager->getFollowersOf(''));
+        $actual = $SetManager->initIteratorSeed();
 
         $this->assertEquals($expectedResult, $actual);
     }

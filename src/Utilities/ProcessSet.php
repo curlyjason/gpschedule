@@ -71,8 +71,9 @@ class ProcessSet
             ->toArray();
     }
 
-    protected function initIteratorSeed($followers, $path = '0'): array
+    protected function initIteratorSeed($followers = null, $path = '0'): array
     {
+        $followers = $followers ?? $this->getFollowersOf('');
         $split = count($followers) > 1;
 
         collection ($followers)->map(function($follower, $index) use ($path, $split){
