@@ -49,7 +49,9 @@ class ProcessSet
 
     public function getChildIterator()
     {
-        $this->iteratorSeed = $this->iteratorSeed ?? $this->childIteratorSeed($this->getFollowersOf(''));
+        $this->iteratorSeed = empty($this->iteratorSeed)
+            ? $this->childIteratorSeed($this->getFollowersOf(''))
+            : $this->iteratorSeed;
         return new \RecursiveArrayIterator($this->childIteratorSeed($this->iteratorSeed));
     }
 
@@ -71,16 +73,15 @@ class ProcessSet
 
     protected function childIteratorSeed($followers, $path = '0')
     {
-        debug($followers);
+        $split = count($followers) > 1;
 
-        collection ($followers)->map(function($follower, $index) use ($path, $followers){
-            debug($follower);
-            if(count($followers) > 1){
-                $path .= ".$index";
-            }
-            debug($path);
-            $this->iteratorSeed = Hash::insert($this->iteratorSeed, (string) $path, $follower);
+        collection ($followers)->map(function($follower, $index) use ($path, $split){
+
+            $path = $split ? $this->split($path, $index) : $path ;
+            $this->iteratorSeed =
+                Hash::insert($this->iteratorSeed, $path, $follower);
             $path = $this->incrementPath($path);
+
             $this->childIteratorSeed($this->getFollowersOf($follower), $path);
         })->toArray();
 
@@ -99,6 +100,12 @@ class ProcessSet
         return implode('.', $pathArray);
     }
 
-
-
+    private function split(mixed $path, $index)
+    {
+        $pathArray = explode('.', $path);
+        $last = array_pop($pathArray);
+        $pathArray[] = ($last + $index) . '.0';
+        return implode('.', $pathArray);
+    }
+    
 }

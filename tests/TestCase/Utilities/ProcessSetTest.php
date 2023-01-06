@@ -30,29 +30,29 @@ class ProcessSetTest extends TestCase
     {
         $SetManager = new ProcessSetDouble([]);
         $SetManager->setKeyedByPrereq($prereqLookup);
-        debug($SetManager);
+//        debug($SetManager);
         $actual = $SetManager->childIteratorSeed($SetManager->getFollowersOf(''));
-        debug($actual);
+//        debug($actual);
         $this->assertEquals($expectedResult, $actual);
     }
 
     public function process_sorter_provider()
     {
         return [
-//            [
-//                /**
-//                 *two single starts with no following steps
-//                 */
-//                'prereqLookup' => [
-//                    '' => ['a', 'b'],
-//                    'a' => [],
-//                    'b' => [],
-//                ],
-//                'expectedResult' => [
-//                    ['a'],
-//                    ['b'],
-//                ]
-//            ],
+            [
+                /**
+                 *two single starts with no following steps
+                 */
+                'prereqLookup' => [
+                    '' => ['a', 'b'],
+                    'a' => [],
+                    'b' => [],
+                ],
+                'expectedResult' => [
+                    ['a'],
+                    ['b'],
+                ]
+            ],
             [
                 /**
                  *simple split
@@ -69,67 +69,69 @@ class ProcessSetTest extends TestCase
                     ['b', 'd'],
                 ]
             ],
-//            [
-//                /**
-//                 *single starts with no following steps
-//                 */
-//                'prereqLookup' => [
-//                    '' => ['a'],
-//                    'a' => [],
-//                ],
-//                'expectedResult' => [
-//                    'a',
-//                ]
-//            ],
-//            [
-//                /**
-//                 *straight line list
-//                 */
-//                'prereqLookup' => [
-//                    '' => ['a'],
-//                    'a' => ['a.b'],
-//                    'a.b' => ['b.c'],
-//                    'b.c' => []
-//                ],
-//                'expectedResult' => [
-//                    'a', 'a.b', 'b.c'
-//                ]
-//            ],
-//            [
-//                /**
-//                 *single split
-//                 */
-//                'prereqLookup' => [
-//                    '' => ['a', 'b'],
-//                    'a' => ['a.a'],
-//                    'a.a' => ['a.b'],
-//                    'a.b' => [],
-//                    'b' => ['b.a'],
-//                    'b.a' => [],
-//                ],
-//                'expectedResult' => [
-//                    ['a', 'a.a', 'a.b'],
-//                    ['b', 'b.a'],
-//                ]
-//            ],
-//            [
-//                /**
-//                 *double split
-//                 */
-//                'prereqLookup' => [
-//                    '' => ['a', 'b'],
-//                    'a' => [],
-//                    'b' => ['b.a'],
-//                    'b.a' => ['b.a.a', 'b.a.b'],
-//                    'b.a.a' => [],
-//                    'b.a.b' => ['b.a.c'],
-//                    'b.a.c' => []
-//                ],
-//                'expectedResult' => [
-//                    ['a', 'a.a', 'a.b'],
-//                    ['b', 'b.a', ['b.a.a'], ['b.a.b', 'b.a.c']],
-//                ]
-//            ],
+            [
+                /**
+                 *single starts with no following steps
+                 */
+                'prereqLookup' => [
+                    '' => ['a'],
+                    'a' => [],
+                ],
+                'expectedResult' => [
+                    'a',
+                ]
+            ],
+            [
+                /**
+                 *straight line list
+                 */
+                'prereqLookup' => [
+                    '' => ['a'],
+                    'a' => ['a.b'],
+                    'a.b' => ['b.c'],
+                    'b.c' => []
+                ],
+                'expectedResult' => [
+                    'a', 'a.b', 'b.c'
+                ]
+            ],
+            [
+                /**
+                 *single split
+                 */
+                'prereqLookup' => [
+                    '' => ['a', 'b'],
+                    'a' => ['a.a'],
+                    'a.a' => ['a.b'],
+                    'a.b' => [],
+                    'b' => ['b.a'],
+                    'b.a' => [],
+                ],
+                'expectedResult' => [
+                    ['a', 'a.a', 'a.b'],
+                    ['b', 'b.a'],
+                ]
+            ],
+            [
+                /**
+                 *double split
+                 */
+                'prereqLookup' => [
+                    '' => ['a', 'b'],
+                    'a' => ['a.a'],
+                    'a.a' => ['a.b'],
+                    'a.b' => [],
+                    'b' => ['b.a'],
+                    'b.a' => ['b.a.a', 'b.a.b'],
+                    'b.a.a' => [],
+                    'b.a.b' => ['b.a.c'],
+                    'b.a.c' => []
+                ],
+                'expectedResult' => [
+                    ['a', 'a.a', 'a.b'],
+                    ['b', 'b.a', ['b.a.a'], ['b.a.b', 'b.a.c']],
+                ]
+            ],
         ];
     }
 
