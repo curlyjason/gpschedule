@@ -3,11 +3,13 @@
 namespace App\Test\Scenario;
 
 use App\Model\Entity\Job;
+use App\Model\Entity\Process;
 use App\Test\Factory\JobFactory;
 use App\Test\Factory\ProcessFactory;
 use App\Test\Traits\RetrievalTrait;
+use Cake\Datasource\EntityInterface;
+use Cake\Datasource\ResultSetInterface;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
-use mysql_xdevapi\Collection;
 use function PHPUnit\Framework\isEmpty;
 
 class SingleStreamProcessScenario implements FixtureScenarioInterface
@@ -30,18 +32,7 @@ class SingleStreamProcessScenario implements FixtureScenarioInterface
         }
         $processes = ProcessFactory::make($this->basicProcessArray($job))->persist();
 
-        $process_ids = collection($processes)->extract('id')->shuffle()->toList();
-
-        $processes = collection($processes)->map(function($process, $index) use (&$process_ids){
-            if($index === 0) {
-                return $process;
-            }
-            while($process->id === $process_ids[0]){
-                $process_ids = collection($process_ids)->shuffle()->toList();
-            }
-            $process->set('prereq', array_shift($process_ids));
-            return $process;
-        })->toArray();
+        $processes = $this->mixUpSequence($processes);
 
         $table = ProcessFactory::make()->getTable();
         $patch = collection($processes)->map(function($process) use($table) {
@@ -60,5 +51,24 @@ class SingleStreamProcessScenario implements FixtureScenarioInterface
         return collection(range(0, $count))->map(function($processNumber) use ($job){
             return ['job_id' => $job->id];
         })->toArray();
+    }
+
+    /**
+     * @param ResultSetInterface|array|Process|EntityInterface $processes
+     * @return array
+     */
+    private function mixUpSequence(array $processes): array
+    {
+        $processes = collection($processes)->shuffle()->toArray();
+        $prereqId = null;
+        $processes = collection($processes)
+            ->map(function ($process) use (&$prereqId) {
+                $process->set('prereq', $prereqId);
+                $prereqId = $process->id;
+                return $process;
+            })
+            ->toArray();
+
+        return $processes;
     }
 }
