@@ -50,9 +50,9 @@ class ProcessSet
     public function getChildIterator(): \RecursiveArrayIterator
     {
         $this->iteratorSeed = empty($this->iteratorSeed)
-            ? $this->childIteratorSeed($this->getFollowersOf(''))
+            ? $this->initIteratorSeed($this->getFollowersOf(''))
             : $this->iteratorSeed;
-        return new \RecursiveArrayIterator($this->childIteratorSeed($this->iteratorSeed));
+        return new \RecursiveArrayIterator($this->initIteratorSeed($this->iteratorSeed));
     }
 
     private function getInitialProcessesKeys(): array
@@ -71,7 +71,7 @@ class ProcessSet
             ->toArray();
     }
 
-    protected function childIteratorSeed($followers, $path = '0'): array
+    protected function initIteratorSeed($followers, $path = '0'): array
     {
         $split = count($followers) > 1;
 
@@ -82,7 +82,7 @@ class ProcessSet
                 Hash::insert($this->iteratorSeed, $path, $follower);
             $path = $this->incrementPath($path);
 
-            $this->childIteratorSeed($this->getFollowersOf($follower), $path);
+            $this->initIteratorSeed($this->getFollowersOf($follower), $path);
         })->toArray();
 
         return $this->iteratorSeed;
