@@ -26,8 +26,10 @@ class ProcessSet
     }
 
     /**
-     * @param $key
-     * @return string
+     * Get the id of the prerequisite Process
+     *
+     * @param int $key id of a process
+     * @return ?string
      */
     public function getPrereqOf($key): ?string
     {
@@ -35,7 +37,9 @@ class ProcessSet
     }
 
     /**
-     * @param $key
+     * Get an array of the ids following Processes
+     *
+     * @param int $key
      * @return array
      */
     public function getFollowersOf($key): array
@@ -43,11 +47,22 @@ class ProcessSet
         return $this->keyedByPrereq[$key] ?? [];
     }
 
+    /**
+     * Get a stored Process by id
+     *
+     * @param int $key Process id
+     * @return ?Process
+     */
     public function getProcess($key)
     {
         return $this->keydById[$key] ?? null;
     }
 
+    /**
+     * Return a fresh iterator
+     *
+     * @return RecursiveArrayIterator
+     */
     public function getIterator(): RecursiveArrayIterator
     {
         $this->iteratorSeed = empty($this->iteratorSeed)
