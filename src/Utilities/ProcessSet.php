@@ -48,7 +48,7 @@ class ProcessSet
         return $this->keydById[$key] ?? null;
     }
 
-    public function getChildIterator(): RecursiveArrayIterator
+    public function getIterator(): RecursiveArrayIterator
     {
         $this->iteratorSeed = empty($this->iteratorSeed)
             ? $this->initIteratorSeed($this->getFollowersOf(''))
@@ -74,12 +74,12 @@ class ProcessSet
 
     protected function initIteratorSeed($followers = null, $path = '0'): array
     {
-        $followers = $followers ?? $this->getFollowersOf('');
+        $followers = $followers ?? $this->getInitialProcessesKeys();
         $split = count($followers) > 1;
 
         collection ($followers)->map(function($follower, $index) use ($path, $split){
 
-            $path = $split ? $this->split($path, $index) : $path ;
+            $path = $split ? $this->splitPath($path, $index) : $path ;
             $this->iteratorSeed =
                 Hash::insert($this->iteratorSeed, $path, $follower);
             $path = $this->incrementPath($path);
@@ -102,7 +102,7 @@ class ProcessSet
         return implode('.', $pathArray);
     }
 
-    private function split(mixed $path, $index): string
+    private function splitPath(mixed $path, $index): string
     {
         $pathArray = explode('.', $path);
         $last = array_pop($pathArray);
