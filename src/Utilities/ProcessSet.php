@@ -28,9 +28,9 @@ class ProcessSet
      * @param $key
      * @return string
      */
-    public function getPrereqOf($key): string
+    public function getPrereqOf($key): ?string
     {
-        return $this->keydById[$key];
+        return $this->keydById[$key]->prereq;
     }
 
     /**
