@@ -111,18 +111,21 @@ class ProcessSet
      */
     private function incrementPath(string $path): string
     {
-        $pathArray = explode('.', $path);
-        $last = array_pop($pathArray);
-        $pathArray[] = ++$last;
-        return implode('.', $pathArray);
+        $callable = function($last) {return ++$last;};
+        return $this->modifyLastPathEntry($path,$callable);
     }
 
     private function splitPath(mixed $path, $index): string
     {
-        $pathArray = explode('.', $path);
-        $last = array_pop($pathArray);
-        $pathArray[] = ($last + $index) . '.0';
-        return implode('.', $pathArray);
+        $callable = function($last) use ($index ){return ($last + $index) . '.0';};
+        return $this->modifyLastPathEntry($path,$callable);
     }
 
+    private function modifyLastPathEntry($path, $callable) {
+        $pathArray = explode('.', $path);
+        $last = array_pop($pathArray);
+        $pathArray[] = $callable($last);
+        return implode('.', $pathArray);
+    }
 }
+
