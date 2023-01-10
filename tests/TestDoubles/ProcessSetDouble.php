@@ -6,6 +6,7 @@ use App\Utilities\ProcessSet;
 
 class ProcessSetDouble extends ProcessSet
 {
+
     public function initIteratorSeed($followers = null, $path='0') : array
     {
         return parent::initIteratorSeed($followers, $path);
@@ -14,6 +15,11 @@ class ProcessSetDouble extends ProcessSet
     public function setKeyedByPrereq(array $array)
     {
         $this->keyedByPrereq = $array;
+    }
+
+    public function getIteratorSeed()
+    {
+        return $this->iteratorSeed;
     }
 
 }

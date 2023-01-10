@@ -2,10 +2,13 @@
 
 namespace App\Test\TestCase\Utilities;
 
+use App\Test\Factory\JobFactory;
+use App\Test\Factory\ProcessFactory;
 use App\Test\TestDoubles\ProcessSetDouble;
 use App\Test\Traits\RetrievalTrait;
 use App\Utilities\ProcessSet;
 use Cake\TestSuite\TestCase;
+use Cake\Utility\Hash;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class ProcessSetTest extends TestCase
@@ -38,6 +41,36 @@ class ProcessSetTest extends TestCase
         $actual = $SetManager->initIteratorSeed();
 
         $this->assertEquals($expectedResult, $actual);
+    }
+
+    public function test_createProcessWithSpecificId()
+    {
+        $job = JobFactory::make()->persist();
+        $this->straightSetProcesses();
+        $this->straightSetProcesses(6, 12, 3);
+
+        $processSet = new ProcessSetDouble($this->getRecords('Processes'));
+        $processSet->getIterator();
+        debug($processSet->getIteratorSeed());
+        debug(Hash::flatten($processSet->getIteratorSeed(), '.'));
+
+    }
+
+    public function straightSetProcesses(int $start = 1, int $end = 5, $prereq = '')
+    {
+        $rounds = range($start, $end);
+        $job = JobFactory::make()->persist();
+        collection($rounds)
+            ->map(function($step) use ($job, &$prereq, $start){
+                $prereq = $step == $start ? $prereq : $step-1;
+                $date = $step == $start ? time() : time() + ($step * DAY);
+                ProcessFactory::make([
+                    'id' => $step,
+                    'prereq' => $prereq,
+                    'start_date' => $date,
+                    'job_id' => $job->id
+                    ])->persist();
+            })->toArray();
     }
 
     public function process_sorter_provider()
