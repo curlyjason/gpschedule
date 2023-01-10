@@ -54,4 +54,9 @@ class Process extends Entity
         'standard' => true,
         'job' => true,
     ];
+
+    public function getDuration():int
+    {
+        return (int) $this->duration;
+    }
 }
