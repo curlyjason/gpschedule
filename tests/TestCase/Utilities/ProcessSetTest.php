@@ -53,7 +53,8 @@ class ProcessSetTest extends TestCase
         $processSet->getIterator();
         debug($processSet->getIteratorSeed());
         debug(Hash::flatten($processSet->getIteratorSeed(), '.'));
-
+        debug($processSet->getLongestThread());
+        $processSet->getLongestThread();
     }
 
     public function straightSetProcesses(int $start = 1, int $end = 5, $prereq = '')

@@ -58,6 +58,19 @@ class ProcessSet
         return $this->keydById[$key] ?? null;
     }
 
+    public function getThreadCount()
+    {
+        return collection($this->keyedByPrereq)
+            ->reduce(function($accum, $node) {
+                return $accum += empty($node);
+            }, 0);
+    }
+
+    public function getLongestThread()
+    {
+        return $this->getIterator()->count();
+    }
+
     /**
      * Return a fresh iterator
      *
@@ -65,9 +78,7 @@ class ProcessSet
      */
     public function getIterator(): RecursiveArrayIterator
     {
-        $this->iteratorSeed = empty($this->iteratorSeed)
-            ? $this->initIteratorSeed($this->getFollowersOf(''))
-            : $this->iteratorSeed;
+        $this->insureSeedInitialization();
         return new RecursiveArrayIterator($this->iteratorSeed);
     }
 
@@ -126,6 +137,16 @@ class ProcessSet
         $last = array_pop($pathArray);
         $pathArray[] = $callable($last);
         return implode('.', $pathArray);
+    }
+
+    /**
+     * @return void
+     */
+    private function insureSeedInitialization(): void
+    {
+        if (empty($this->iteratorSeed)) {
+            $this->initIteratorSeed($this->getFollowersOf(''));
+        };
     }
 }
 
