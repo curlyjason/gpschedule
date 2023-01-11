@@ -22,4 +22,9 @@ class ProcessSetDouble extends ProcessSet
         return $this->iteratorSeed;
     }
 
+    public function getPrereqChain()
+    {
+        return $this->prereqChain;
+    }
+
 }

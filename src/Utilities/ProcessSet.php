@@ -11,6 +11,7 @@ class ProcessSet
     private array $keydById;
     protected array $keyedByPrereq;
     protected array $iteratorSeed = [];
+    protected array $prereqChain = [];
 
     /**
      * @param Process[] $processes
@@ -147,6 +148,34 @@ class ProcessSet
         if (empty($this->iteratorSeed)) {
             $this->initIteratorSeed($this->getFollowersOf(''));
         };
+    }
+
+    public function longestStepCount($interatorSeed = null, $prereqChain = '')
+    {
+//        $followers = $followers ?? $this->getInitialProcessesKeys();
+//        debug($followers);
+//        $split = count($followers) > 1;
+//
+//        $output = collection($followers)->map(function($follower, $index) use ($split, $prereqChain){
+//            $prereqChain .= ".$follower";
+//            $this->longestStepCount($this->getFollowersOf($follower), $prereqChain);
+//            debug($prereqChain);
+//            $this->prereqChain[$index] = $prereqChain;
+//            return $prereqChain;
+//        })->toArray();
+//        debug ($output);
+//        return $output;
+        $this->initIteratorSeed();
+        $interatorSeed = $interatorSeed ?? $this->iteratorSeed;
+        return collection($this->iteratorSeed)
+            ->map(function($layer, $index){
+                if(is_array($layer)){
+                    $this->longestStepCount($layer);
+                }
+                else {
+                    $this->prereqChain[$index] = $this->prereqChain[$index]+1;
+                }
+            })->toArray();
     }
 }
 

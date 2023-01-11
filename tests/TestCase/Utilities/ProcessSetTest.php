@@ -185,4 +185,20 @@ class ProcessSetTest extends TestCase
 
     }
 
+    public function test_longestStepCount()
+    {
+        $job = JobFactory::make()->persist();
+        $this->straightSetProcesses();
+        $this->straightSetProcesses(6, 12, 3);
+
+        $processSet = new ProcessSetDouble($this->getRecords('Processes'));
+
+        $output = $processSet->longestStepCount();
+
+        debug($output);
+//        debug($processSet->getPrereqChain());
+//        $processSet->initIteratorSeed();
+//        debug($processSet->getIteratorSeed());
+    }
+
 }
