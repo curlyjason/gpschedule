@@ -6,6 +6,7 @@ use App\Test\Factory\JobFactory;
 use App\Test\Factory\ProcessFactory;
 use App\Test\TestDoubles\ProcessSetDouble;
 use App\Test\Traits\RetrievalTrait;
+use App\Test\Utilities\ProcessThread;
 use App\Utilities\ProcessSet;
 use Cake\TestSuite\TestCase;
 use Cake\Utility\Hash;
@@ -25,54 +26,6 @@ class ProcessSetTest extends TestCase
 
         $this->assertInstanceOf(ProcessSet::class, $SetManager);
 
-    }
-
-    /**
-     * @param $prereqLookup
-     * @param $expectedResult
-     * @dataProvider process_sorter_provider
-     * @return void
-     */
-    public function test_process_sorter($prereqLookup, $expectedResult)
-    {
-        $SetManager = new ProcessSetDouble([]);
-        $SetManager->setKeyedByPrereq($prereqLookup);
-
-        $actual = $SetManager->initIteratorSeed();
-
-        $this->assertEquals($expectedResult, $actual);
-    }
-
-    public function test_createProcessWithSpecificId()
-    {
-        JobFactory::make()->persist();
-        $this->straightSetProcesses();
-        $this->straightSetProcesses(6, 12, 3);
-        $this->straightSetProcesses(13, 15, 2);
-        $this->straightSetProcesses(16,20, 10);
-        $this->straightSetProcesses(21,25,'');
-        $this->straightSetProcesses(26,29,21);
-
-        $processSet = new ProcessSetDouble($this->getRecords('Processes'));
-
-        debug($processSet);
-    }
-
-    public function straightSetProcesses(int $start = 1, int $end = 5, $prereq = '')
-    {
-        $rounds = range($start, $end);
-        $job = JobFactory::make()->persist();
-        collection($rounds)
-            ->map(function($step) use ($job, &$prereq, $start){
-                $prereq = $step == $start ? $prereq : $step-1;
-                $date = $step == $start ? time() : time() + ($step * DAY);
-                ProcessFactory::make([
-                    'id' => $step,
-                    'prereq' => $prereq,
-                    'start_date' => $date,
-                    'job_id' => $job->id
-                    ])->persist();
-            })->toArray();
     }
 
     public function process_sorter_provider()
@@ -174,6 +127,37 @@ class ProcessSetTest extends TestCase
         ];
     }
 
+    /**
+     * @param $prereqLookup
+     * @param $expectedResult
+     * @dataProvider process_sorter_provider
+     * @return void
+     */
+    public function test_process_sorter($prereqLookup, $expectedResult)
+    {
+        $SetManager = new ProcessSetDouble([]);
+        $SetManager->setKeyedByPrereq($prereqLookup);
+
+        $actual = $SetManager->initIteratorSeed();
+
+        $this->assertEquals($expectedResult, $actual);
+    }
+
+    public function test_createProcessWithSpecificId()
+    {
+        $job = JobFactory::make()->persist();
+        ProcessThread::generate($job);
+        ProcessThread::generate($job, 6, 12, 3);
+        ProcessThread::generate($job, 13, 15, 2);
+        ProcessThread::generate($job, 16,20, 10);
+        ProcessThread::generate($job, 21,25,'');
+        ProcessThread::generate($job, 26,29,21);
+
+        $processSet = new ProcessSetDouble($this->getRecords('Processes'));
+
+        debug($processSet);
+    }
+
     public function test_getIterator()
     {
         $this->loadFixtureScenario('SingleStreamProcess');
@@ -183,23 +167,24 @@ class ProcessSetTest extends TestCase
 
         $this->assertInstanceOf(\RecursiveArrayIterator::class, $iterator);
 
-
     }
 
     public function test_longestStepCount()
     {
-        JobFactory::make()->persist();
-        $this->straightSetProcesses();
-        $this->straightSetProcesses(6, 12, 3);
-        $this->straightSetProcesses(13, 15, 2);
-        $this->straightSetProcesses(16,20, 10);
-        $this->straightSetProcesses(21,25,'');
-        $this->straightSetProcesses(26,29,21);
+        $job = JobFactory::make()->persist();
+
+        ProcessThread::generate($job);
+        ProcessThread::generate($job, 6, 12, 3);
+        ProcessThread::generate($job, 13, 15, 2);
+        ProcessThread::generate($job, 16,20, 10);
+        ProcessThread::generate($job, 21,25,'');
+        ProcessThread::generate($job, 26,29,21);
+        ProcessThread::generate($job, 30,75,21);
         $b = new \OSDTImer();
         $b->start();
-        foreach (range(0,99) as $c) {
+//        foreach (range(0,99) as $c) {
             $processSet = new ProcessSetDouble($this->getRecords('Processes'));
-        }
+//        }
         debug($b->result());
 
         $output = $processSet->setThreadPaths();
@@ -208,6 +193,30 @@ class ProcessSetTest extends TestCase
 //        debug($processSet->getPrereqChain());
 //        $processSet->initIteratorSeed();
 //        debug($processSet->getIteratorSeed());
+    }
+
+    public function test_makeSingleStreamProcessSet()
+    {
+        $job = JobFactory::make()->persist();
+        $this->loadFixtureScenario('StraightProcessThread', $job);
+    }
+
+    public function test_makeDualSingleStreamProcessSet()
+    {
+        $job = JobFactory::make()->persist();
+        $this->loadFixtureScenario('TwoStraightProcessThread', $job);
+    }
+
+    public function test_makeSingleSplitProcessSet()
+    {
+        $job = JobFactory::make()->persist();
+        $this->loadFixtureScenario('BranchedProcessThread', $job);
+    }
+
+    public function test_makeMixedProcessSet()
+    {
+        $job = JobFactory::make()->persist();
+        $this->loadFixtureScenario('BranchedAndStraightProcessThread', $job);
     }
 
 }
