@@ -179,7 +179,7 @@ class ProcessSetTest extends TestCase
         $this->loadFixtureScenario('SingleStreamProcess');
         $processes = $this->getRecords('Processes'); //straight line schedule
 
-        $iterator = (new ProcessSetDouble($processes))->getIterator();
+        $iterator = (new ProcessSetDouble($processes))->getIteratorSeedIterator();
 
         $this->assertInstanceOf(\RecursiveArrayIterator::class, $iterator);
 
@@ -202,7 +202,7 @@ class ProcessSetTest extends TestCase
         }
         debug($b->result());
 
-        $output = $processSet->longestStepCount();
+        $output = $processSet->setThreadPaths();
 
         debug($processSet);
 //        debug($processSet->getPrereqChain());
