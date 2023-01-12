@@ -49,7 +49,9 @@ class ProcessSetTest extends TestCase
         $this->straightSetProcesses();
         $this->straightSetProcesses(6, 12, 3);
         $this->straightSetProcesses(13, 15, 2);
+        $this->straightSetProcesses(16,20, 10);
         $this->straightSetProcesses(21,25,'');
+        $this->straightSetProcesses(26,29,21);
 
         $processSet = new ProcessSetDouble($this->getRecords('Processes'));
 
@@ -186,15 +188,23 @@ class ProcessSetTest extends TestCase
 
     public function test_longestStepCount()
     {
-        $job = JobFactory::make()->persist();
+        JobFactory::make()->persist();
         $this->straightSetProcesses();
         $this->straightSetProcesses(6, 12, 3);
-
-        $processSet = new ProcessSetDouble($this->getRecords('Processes'));
+        $this->straightSetProcesses(13, 15, 2);
+        $this->straightSetProcesses(16,20, 10);
+        $this->straightSetProcesses(21,25,'');
+        $this->straightSetProcesses(26,29,21);
+        $b = new \OSDTImer();
+        $b->start();
+        foreach (range(0,99) as $c) {
+            $processSet = new ProcessSetDouble($this->getRecords('Processes'));
+        }
+        debug($b->result());
 
         $output = $processSet->longestStepCount();
 
-        debug($output);
+        debug($processSet);
 //        debug($processSet->getPrereqChain());
 //        $processSet->initIteratorSeed();
 //        debug($processSet->getIteratorSeed());

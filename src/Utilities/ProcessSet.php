@@ -38,6 +38,7 @@ class ProcessSet
             });
         $this->longestStepCount();
         $this->registerDurations($this->threadPaths);
+        $this->insureSeedInitialization();
         debug($t->result());
     }
 
