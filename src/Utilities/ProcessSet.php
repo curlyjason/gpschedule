@@ -165,17 +165,27 @@ class ProcessSet
 //        })->toArray();
 //        debug ($output);
 //        return $output;
-        $this->initIteratorSeed();
-        $interatorSeed = $interatorSeed ?? $this->iteratorSeed;
-        return collection($this->iteratorSeed)
-            ->map(function($layer, $index){
-                if(is_array($layer)){
-                    $this->longestStepCount($layer);
-                }
-                else {
-                    $this->prereqChain[$index] = $this->prereqChain[$index]+1;
-                }
-            })->toArray();
+//        $this->initIteratorSeed();
+//        $interatorSeed = $interatorSeed ?? $this->iteratorSeed;
+//        return collection($this->iteratorSeed)
+//            ->map(function($layer, $index){
+//                if(is_array($layer)){
+//                    $this->longestStepCount($layer);
+//                }
+//                else {
+//                    $this->prereqChain[$index] = $this->prereqChain[$index]+1;
+//                }
+//            })->toArray();
+
+        $endpoints = $this->getArrayOfEndpoints();
+
+        collection($endpoints)
+            ->reduce(function($accum, $endpoint, $index) {
+                $accum['paths'][$index] = $endpoint;
+                $accum['durations'][$index] += $endpoint->duration;
+                return $accum;
+            }, ['paths' => [], 'durations' => []]);
+
     }
 }
 
