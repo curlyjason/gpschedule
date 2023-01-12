@@ -61,6 +61,7 @@ class Application extends BaseApplication
          */
         if (Configure::read('debug')) {
             $this->addPlugin('DebugKit');
+            require_once "{$this->configDir}osdebug-bootstrap.php";
         }
 
         // Load more plugins here
