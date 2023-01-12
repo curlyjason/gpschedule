@@ -12,18 +12,33 @@ class ProcessSet
     protected array $keyedByPrereq;
     protected array $iteratorSeed = [];
     protected array $prereqChain = [];
+    protected array $threadEnds = [];
+    protected $count = 0;
+    protected $durationLookup = [];
+    private $threadPaths;
 
     /**
      * @param Process[] $processes
      */
     public function __construct(array $processes)
     {
+//        require_once "{$this->configDir}osdebug-bootstrap.php";
+//
+        $t = new \OSDTImer();
+        $t->start();
         $this->keydById = collection($processes)
             ->indexBy(function($process) {
                 return $process->id;
             })
             ->toArray();
         $this->buildFollowerLookup();
+        collection($this->keyedByPrereq)
+            ->each(function($node, $id) {
+                if (empty($node)) {$this->threadEnds[] = $id;}
+            });
+        $this->longestStepCount();
+        $this->registerDurations($this->threadPaths);
+        debug($t->result());
     }
 
     /**
@@ -61,15 +76,46 @@ class ProcessSet
 
     public function getThreadCount()
     {
-        return collection($this->keyedByPrereq)
-            ->reduce(function($accum, $node) {
-                return $accum += empty($node);
-            }, 0);
+        return count($this->getThreadEnds());
     }
 
     public function getLongestThread()
     {
         return $this->getIterator()->count();
+    }
+
+    public function longestStepCount($interatorSeed = null, $prereqChain = '')
+    {
+//        $followers = $followers ?? $this->getInitialProcessesKeys();
+//        debug($followers);
+//        $split = count($followers) > 1;
+//
+//        $output = collection($followers)->map(function($follower, $index) use ($split, $prereqChain){
+//            $prereqChain .= ".$follower";
+//            $this->longestStepCount($this->getFollowersOf($follower), $prereqChain);
+//            debug($prereqChain);
+//            $this->prereqChain[$index] = $prereqChain;
+//            return $prereqChain;
+//        })->toArray();
+//        debug ($output);
+//        return $output;
+//        $this->initIteratorSeed();
+//        $interatorSeed = $interatorSeed ?? $this->iteratorSeed;
+//        return collection($this->iteratorSeed)
+//            ->map(function($layer, $index){
+//                if(is_array($layer)){
+//                    $this->longestStepCount($layer);
+//                }
+//                else {
+//                    $this->prereqChain[$index] = $this->prereqChain[$index]+1;
+//                }
+//            })->toArray();
+        $this->threadPaths = collection($this->getThreadEnds())
+            ->reduce(function($accum, $endpoint, $index) {
+                $path = $this->buildPathTo($endpoint);
+                $accum[$index] = $path;
+                return $accum;
+            }, []);
     }
 
     /**
@@ -150,42 +196,34 @@ class ProcessSet
         };
     }
 
-    public function longestStepCount($interatorSeed = null, $prereqChain = '')
+    public function getThreadEnds()
     {
-//        $followers = $followers ?? $this->getInitialProcessesKeys();
-//        debug($followers);
-//        $split = count($followers) > 1;
-//
-//        $output = collection($followers)->map(function($follower, $index) use ($split, $prereqChain){
-//            $prereqChain .= ".$follower";
-//            $this->longestStepCount($this->getFollowersOf($follower), $prereqChain);
-//            debug($prereqChain);
-//            $this->prereqChain[$index] = $prereqChain;
-//            return $prereqChain;
-//        })->toArray();
-//        debug ($output);
-//        return $output;
-//        $this->initIteratorSeed();
-//        $interatorSeed = $interatorSeed ?? $this->iteratorSeed;
-//        return collection($this->iteratorSeed)
-//            ->map(function($layer, $index){
-//                if(is_array($layer)){
-//                    $this->longestStepCount($layer);
-//                }
-//                else {
-//                    $this->prereqChain[$index] = $this->prereqChain[$index]+1;
-//                }
-//            })->toArray();
-
-        $endpoints = $this->getArrayOfEndpoints();
-
-        collection($endpoints)
-            ->reduce(function($accum, $endpoint, $index) {
-                $accum['paths'][$index] = $endpoint;
-                $accum['durations'][$index] += $endpoint->duration;
-                return $accum;
-            }, ['paths' => [], 'durations' => []]);
-
+        return $this->threadEnds;
     }
+
+    private function buildPathTo($endpoint)
+    {
+        $process = $this->getProcess($endpoint);
+        $path = $endpoint;
+        while ($process->prereq != null) {
+            $path .= ".$process->prereq";
+            $process = $this->getProcess($process->prereq);
+        }
+        return $path;
+    }
+
+    private function registerDurations(mixed $path)
+    {
+        foreach($this->threadPaths as $path) {
+            $total = 0;
+            $a = explode('.', $path);
+            sort($a);
+            foreach($a as $key) {
+                $total = $total + $this->getProcess($key)->duration;
+                $this->durationLookup[$key] = $total;
+            }
+        }
+    }
+
 }
 
