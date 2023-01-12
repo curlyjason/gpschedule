@@ -45,16 +45,15 @@ class ProcessSetTest extends TestCase
 
     public function test_createProcessWithSpecificId()
     {
-        $job = JobFactory::make()->persist();
+        JobFactory::make()->persist();
         $this->straightSetProcesses();
         $this->straightSetProcesses(6, 12, 3);
+        $this->straightSetProcesses(13, 15, 2);
+        $this->straightSetProcesses(21,25,'');
 
         $processSet = new ProcessSetDouble($this->getRecords('Processes'));
-        $processSet->getIterator();
-        debug($processSet->getIteratorSeed());
-        debug(Hash::flatten($processSet->getIteratorSeed(), '.'));
-        debug($processSet->getLongestThread());
-        $processSet->getLongestThread();
+
+        debug($processSet);
     }
 
     public function straightSetProcesses(int $start = 1, int $end = 5, $prereq = '')
