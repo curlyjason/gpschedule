@@ -179,6 +179,11 @@ class ProcessSet
         }
     }
 
+    public function getDuration($key)
+    {
+        return $this->durationLookup[$key] ?? null;
+    }
+
     /**
      * @param array $processes
      * @return void
