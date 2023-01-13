@@ -21,7 +21,7 @@ class TwoStraightProcessThreadScenario implements FixtureScenarioInterface
         $job = $args[0];
 
         ProcessThread::generate($job);
-        ProcessThread::generate($job, 11, 20);
+        ProcessThread::generate($job, 111, 120);
     }
 
 }

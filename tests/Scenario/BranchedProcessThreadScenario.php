@@ -21,8 +21,8 @@ class BranchedProcessThreadScenario implements FixtureScenarioInterface
         $job = $args[0];
 
         ProcessThread::generate($job);
-        ProcessThread::generate($job, 11, 20, 5);
-        ProcessThread::generate($job, 21, 30, 15);
+        ProcessThread::generate($job, 111, 120, 105);
+        ProcessThread::generate($job, 121, 130, 115);
     }
 
 }

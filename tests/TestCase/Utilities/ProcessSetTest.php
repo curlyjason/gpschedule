@@ -184,7 +184,7 @@ class ProcessSetTest extends TestCase
                 'StraightProcessThread',
                 [
                     'thread_count' => 1,
-                    'thread_ends' => [10],
+                    'thread_ends' => [110],
                     'thread_duration' => [50]
                 ]
             ],
@@ -192,7 +192,7 @@ class ProcessSetTest extends TestCase
                 'TwoStraightProcessThread',
                 [
                     'thread_count' => 2,
-                    'thread_ends' => [10,20],
+                    'thread_ends' => [110,120],
                     'thread_duration' => [50, 50]
                 ]
             ],
@@ -200,7 +200,7 @@ class ProcessSetTest extends TestCase
                 'BranchedProcessThread',
                 [
                     'thread_count' => 3,
-                    'thread_ends' => [10,20, 30],
+                    'thread_ends' => [110,120, 130],
                     'thread_duration' => [50, 75, 100]
                 ]
             ],
@@ -208,7 +208,7 @@ class ProcessSetTest extends TestCase
                 'BranchedAndStraightProcessThread',
                 [
                     'thread_count' => 4,
-                    'thread_ends' => [10,20,30,40],
+                    'thread_ends' => [110,120,130,140],
                     'thread_duration' => [50, 75, 100, 50]
                 ]
             ],
