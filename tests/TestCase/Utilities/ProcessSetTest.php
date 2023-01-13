@@ -17,17 +17,6 @@ class ProcessSetTest extends TestCase
     use ScenarioAwareTrait;
     use RetrievalTrait;
 
-    public function test_construct()
-    {
-        $this->loadFixtureScenario('SingleStreamProcess');
-        $processes = $this->getRecords('Processes');
-
-        $SetManager = new ProcessSetDouble($processes);
-
-        $this->assertInstanceOf(ProcessSet::class, $SetManager);
-
-    }
-
     public function process_sorter_provider()
     {
         return [
@@ -143,80 +132,87 @@ class ProcessSetTest extends TestCase
         $this->assertEquals($expectedResult, $actual);
     }
 
-    public function test_createProcessWithSpecificId()
-    {
-        $job = JobFactory::make()->persist();
-        ProcessThread::generate($job);
-        ProcessThread::generate($job, 6, 12, 3);
-        ProcessThread::generate($job, 13, 15, 2);
-        ProcessThread::generate($job, 16,20, 10);
-        ProcessThread::generate($job, 21,25,'');
-        ProcessThread::generate($job, 26,29,21);
-
-        $processSet = new ProcessSetDouble($this->getRecords('Processes'));
-
-        debug($processSet);
-    }
-
     public function test_getIterator()
     {
-        $this->loadFixtureScenario('SingleStreamProcess');
-        $processes = $this->getRecords('Processes'); //straight line schedule
-
-        $iterator = (new ProcessSetDouble($processes))->getIteratorSeedIterator();
-
+        $processSet = $this->makeSetForScenario('StraightProcessThread');
+        $iterator = ($processSet->getIteratorSeedIterator());
         $this->assertInstanceOf(\RecursiveArrayIterator::class, $iterator);
-
     }
 
-    public function test_longestStepCount()
+    /**
+     * @dataProvider threadScenarioProvider
+     * @param string $scenario
+     * @param array $expected
+     * @return void
+     */
+    public function test_threadProperties(string $scenario, array $expected)
     {
-        $job = JobFactory::make()->persist();
-
-        ProcessThread::generate($job);
-        ProcessThread::generate($job, 6, 12, 3);
-        ProcessThread::generate($job, 13, 15, 2);
-        ProcessThread::generate($job, 16,20, 10);
-        ProcessThread::generate($job, 21,25,'');
-        ProcessThread::generate($job, 26,29,21);
-        ProcessThread::generate($job, 30,75,21);
-        $b = new \OSDTImer();
-        $b->start();
-//        foreach (range(0,99) as $c) {
-            $processSet = new ProcessSetDouble($this->getRecords('Processes'));
-//        }
-        debug($b->result());
-
-        $output = $processSet->setThreadPaths();
-
-        debug($processSet);
-//        debug($processSet->getPrereqChain());
-//        $processSet->initIteratorSeed();
-//        debug($processSet->getIteratorSeed());
+        $processSet = $this->makeSetForScenario($scenario);
+        $this->assertEquals($expected['thread_count'], $processSet->getThreadCount(), "Unexpected thread count for $scenario");
+        $this->assertEquals($expected['thread_ends'], $processSet->getThreadEnds(), "Unexpected thread end ids for $scenario");
+        $this->assertThreadDuration($processSet, $expected, "Unexpected thread durations for $scenario");
     }
 
-    public function test_makeSingleStreamProcessSet()
+    /**
+     * @param string $scenario
+     * @return ProcessSetDouble
+     */
+    private function makeSetForScenario(string $scenario): ProcessSetDouble
     {
         $job = JobFactory::make()->persist();
-        $this->loadFixtureScenario('StraightProcessThread', $job);
+        $this->loadFixtureScenario($scenario, $job);
+        return new ProcessSetDouble($this->getRecords('Processes'));
     }
 
-    public function test_makeDualSingleStreamProcessSet()
+    /**
+     * @param ProcessSetDouble $processSet
+     * @param array $expected
+     * @return void
+     */
+    private function assertThreadDuration(ProcessSetDouble $processSet, array $expected, $error): void
     {
-        $job = JobFactory::make()->persist();
-        $this->loadFixtureScenario('TwoStraightProcessThread', $job);
+        collection($processSet->getThreadEnds())
+            ->map(function ($end_id, $index) use ($expected, $processSet, $error) {
+                $this->assertEquals($expected['thread_duration'][$index], $processSet->getDuration($end_id), $error);
+            })->toArray();
     }
 
-    public function test_makeSingleSplitProcessSet()
+    public function threadScenarioProvider()
     {
-        $job = JobFactory::make()->persist();
-        $this->loadFixtureScenario('BranchedProcessThread', $job);
-    }
-
-    public function test_makeMixedProcessSet()
-    {
-        $job = JobFactory::make()->persist();
-        $this->loadFixtureScenario('BranchedAndStraightProcessThread', $job);
+        return [
+            [
+                'StraightProcessThread',
+                [
+                    'thread_count' => 1,
+                    'thread_ends' => [10],
+                    'thread_duration' => [50]
+                ]
+            ],
+            [
+                'TwoStraightProcessThread',
+                [
+                    'thread_count' => 2,
+                    'thread_ends' => [10,20],
+                    'thread_duration' => [50, 50]
+                ]
+            ],
+            [
+                'BranchedProcessThread',
+                [
+                    'thread_count' => 3,
+                    'thread_ends' => [10,20, 30],
+                    'thread_duration' => [50, 75, 100]
+                ]
+            ],
+            [
+                'BranchedAndStraightProcessThread',
+                [
+                    'thread_count' => 4,
+                    'thread_ends' => [10,20,30,40],
+                    'thread_duration' => [50, 75, 100, 50]
+                ]
+            ],
+        ];
     }
 
 }
