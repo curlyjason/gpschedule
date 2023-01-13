@@ -83,6 +83,11 @@ class ProcessSet
             }, []);
     }
 
+    public function getThreadPaths()
+    {
+        return $this->threadPaths;
+    }
+
     /**
      * Return a fresh iterator
      *
@@ -160,7 +165,7 @@ class ProcessSet
         $process = $this->getProcess($endpoint);
         $path = $endpoint;
         while ($process->prereq != null) {
-            $path .= ".$process->prereq";
+            $path = "$process->prereq.$path";
             $process = $this->getProcess($process->prereq);
         }
         return $path;
@@ -208,6 +213,24 @@ class ProcessSet
                     $this->threadEnds[] = $id;
                 }
             });
+    }
+
+    public function getGridDimensions()
+    {
+        $columns = count($this->threadPaths);
+        $rows = collection($this->threadPaths)
+            ->reduce(function($accum, $path){
+                $array = explode('.', $path);
+                $accum = count($array) > $accum ? count($array) : $accum;
+                return $accum;
+            },0);
+
+        return ['threads' => $columns, 'steps' =>$rows];
+    }
+
+    public function getMaxDuration()
+    {
+        return max($this->durationLookup);
     }
 
 }
