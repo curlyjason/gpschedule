@@ -17,6 +17,94 @@ class ProcessSetTest extends TestCase
     use ScenarioAwareTrait;
     use RetrievalTrait;
 
+    public function threadScenarioProvider()
+    {
+        return [
+            [
+                'StraightProcessThread',
+                [
+                    'thread_count' => 1,
+                    'thread_ends' => [110],
+                    'thread_duration' => [50],
+                    'grid_dimensions' => ['threads' => 1, 'steps' => 10],
+                    'max_duration' => 50,
+                ]
+            ],
+            [
+                'TwoStraightProcessThread',
+                [
+                    'thread_count' => 2,
+                    'thread_ends' => [110,120],
+                    'thread_duration' => [50, 50],
+                    'grid_dimensions' => ['threads' => 2, 'steps' => 10],
+                    'max_duration' => 50,
+                ]
+            ],
+            [
+                'BranchedProcessThread',
+                [
+                    'thread_count' => 3,
+                    'thread_ends' => [110,120, 130],
+                    'thread_duration' => [50, 75, 100],
+                    'grid_dimensions' => ['threads' => 3, 'steps' => 20],
+                    'max_duration' => 100,
+                ]
+            ],
+            [
+                'BranchedAndStraightProcessThread',
+                [
+                    'thread_count' => 4,
+                    'thread_ends' => [110,120,130,140],
+                    'thread_duration' => [50, 75, 100, 50],
+                    'grid_dimensions' => ['threads' => 4, 'steps' => 20],
+                    'max_duration' => 100,
+                ]
+            ],
+        ];
+    }
+
+   public function test_allPropertiesGetNewValuesAfterConstruct()
+    {
+        $processSet = $this->makeSetForScenario('StraightProcessThread');
+        $original_value = $processSet->getDefaultPropertyValues();
+        $current_value = $processSet->getCurrentPropertyValues();
+
+        foreach (array_keys($original_value) as $key) {
+            $this->assertNotEquals($current_value, $original_value,
+                "The property $key was not set during _construct");
+        }
+
+    }
+
+    /**
+     * @dataProvider threadScenarioProvider
+     * @param string $scenario
+     * @param array $expected
+     * @return void
+     */
+    public function test_getterValuesAfterConstruct(string $scenario, array $expected)
+    {
+        $processSet = $this->makeSetForScenario($scenario);
+        $this->assertEquals($expected['thread_count'], $processSet->getThreadCount(), "Unexpected thread count for $scenario");
+        $this->assertEquals($expected['thread_ends'], $processSet->getThreadEnds(), "Unexpected thread end ids for $scenario");
+        $this->assertThreadDuration($processSet, $expected, "Unexpected thread durations for $scenario");
+        $this->assertEquals($expected['grid_dimensions'], $processSet->getGridDimensions(), "Unexpected grid dimensions for $scenario");
+        $this->assertEquals($expected['max_duration'], $processSet->getMaxDuration(), "Unexpected max duration for $scenario");
+    }
+
+    /**
+     * @dataProvider threadScenarioProvider
+     * @param string $scenario
+     * @param array $expected
+     * @return void
+     */
+    public function test_Development(string $scenario, array $expected)
+    {
+        $processSet = $this->makeSetForScenario($scenario);
+//        debug($processSet->getMaxDuration());
+        $this->assertEquals(1,1);
+    }
+
     public function process_sorter_provider()
     {
         return [
@@ -140,35 +228,6 @@ class ProcessSetTest extends TestCase
     }
 
     /**
-     * @dataProvider threadScenarioProvider
-     * @param string $scenario
-     * @param array $expected
-     * @return void
-     */
-    public function test_threadProperties(string $scenario, array $expected)
-    {
-        $processSet = $this->makeSetForScenario($scenario);
-        $this->assertEquals($expected['thread_count'], $processSet->getThreadCount(), "Unexpected thread count for $scenario");
-        $this->assertEquals($expected['thread_ends'], $processSet->getThreadEnds(), "Unexpected thread end ids for $scenario");
-        $this->assertThreadDuration($processSet, $expected, "Unexpected thread durations for $scenario");
-        $this->assertEquals($expected['grid_dimensions'], $processSet->getGridDimensions(), "Unexpected grid dimensions for $scenario");
-        $this->assertEquals($expected['max_duration'], $processSet->getMaxDuration(), "Unexpected max duration for $scenario");
-    }
-
-    /**
-     * @dataProvider threadScenarioProvider
-     * @param string $scenario
-     * @param array $expected
-     * @return void
-     */
-    public function test_Development(string $scenario, array $expected)
-    {
-        $processSet = $this->makeSetForScenario($scenario);
-        debug($processSet->getMaxDuration());
-        $this->assertEquals(1,1);
-    }
-
-    /**
      * @param string $scenario
      * @return ProcessSetDouble
      */
@@ -190,52 +249,6 @@ class ProcessSetTest extends TestCase
             ->map(function ($end_id, $index) use ($expected, $processSet, $error) {
                 $this->assertEquals($expected['thread_duration'][$index], $processSet->getDuration($end_id), $error);
             })->toArray();
-    }
-
-    public function threadScenarioProvider()
-    {
-        return [
-            [
-                'StraightProcessThread',
-                [
-                    'thread_count' => 1,
-                    'thread_ends' => [110],
-                    'thread_duration' => [50],
-                    'grid_dimensions' => ['threads' => 1, 'steps' => 10],
-                    'max_duration' => 50,
-                ]
-            ],
-            [
-                'TwoStraightProcessThread',
-                [
-                    'thread_count' => 2,
-                    'thread_ends' => [110,120],
-                    'thread_duration' => [50, 50],
-                    'grid_dimensions' => ['threads' => 2, 'steps' => 10],
-                    'max_duration' => 50,
-                ]
-            ],
-            [
-                'BranchedProcessThread',
-                [
-                    'thread_count' => 3,
-                    'thread_ends' => [110,120, 130],
-                    'thread_duration' => [50, 75, 100],
-                    'grid_dimensions' => ['threads' => 3, 'steps' => 20],
-                    'max_duration' => 100,
-                ]
-            ],
-            [
-                'BranchedAndStraightProcessThread',
-                [
-                    'thread_count' => 4,
-                    'thread_ends' => [110,120,130,140],
-                    'thread_duration' => [50, 75, 100, 50],
-                    'grid_dimensions' => ['threads' => 4, 'steps' => 20],
-                    'max_duration' => 100,
-                ]
-            ],
-        ];
     }
 
 }
