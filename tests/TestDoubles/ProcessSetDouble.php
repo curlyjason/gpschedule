@@ -7,6 +7,14 @@ use App\Utilities\ProcessSet;
 class ProcessSetDouble extends ProcessSet
 {
 
+    public function getDefaultPropertyValues() {
+        return get_class_vars(get_class($this));
+    }
+
+    public function getCurrentPropertyValues() {
+        return get_object_vars($this);
+    }
+
     public function initIteratorSeed($followers = null, $path='0') : array
     {
         return parent::initIteratorSeed($followers, $path);
