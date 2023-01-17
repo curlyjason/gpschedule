@@ -4,6 +4,7 @@ namespace App\Utilities;
 
 use App\Model\Entity\Process;
 use Cake\Utility\Hash;
+use JetBrains\PhpStorm\ArrayShape;
 use RecursiveArrayIterator;
 
 class ProcessSet
@@ -68,9 +69,33 @@ class ProcessSet
         return count($this->getThreadEnds());
     }
 
-    public function getLongestThread()
+    public function getLongestThreadStepCount()
     {
         return $this->getIteratorSeedIterator()->count();
+    }
+
+    #[ArrayShape(['threads' => "int", 'steps' => "int"])]
+    public function getGridDimensions()
+    {
+        $columns = count($this->threadPaths);
+        $rows = collection($this->threadPaths)
+            ->reduce(function($accum, $path){
+                $array = explode('.', $path);
+                $accum = count($array) > $accum ? count($array) : $accum;
+                return $accum;
+            },0);
+
+        return ['threads' => $columns, 'steps' =>$rows];
+    }
+
+    public function getMaxDuration()
+    {
+        return max($this->durationLookup);
+    }
+
+    public function getThreadPaths()
+    {
+        return $this->threadPaths;
     }
 
     protected function setThreadPaths()
@@ -81,11 +106,6 @@ class ProcessSet
                 $accum[$index] = $path;
                 return $accum;
             }, []);
-    }
-
-    public function getThreadPaths()
-    {
-        return $this->threadPaths;
     }
 
     /**
@@ -213,24 +233,6 @@ class ProcessSet
                     $this->threadEnds[] = $id;
                 }
             });
-    }
-
-    public function getGridDimensions()
-    {
-        $columns = count($this->threadPaths);
-        $rows = collection($this->threadPaths)
-            ->reduce(function($accum, $path){
-                $array = explode('.', $path);
-                $accum = count($array) > $accum ? count($array) : $accum;
-                return $accum;
-            },0);
-
-        return ['threads' => $columns, 'steps' =>$rows];
-    }
-
-    public function getMaxDuration()
-    {
-        return max($this->durationLookup);
     }
 
 }

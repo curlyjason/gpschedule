@@ -63,7 +63,7 @@ class ProcessSetTest extends TestCase
         ];
     }
 
-   public function test_allPropertiesGetNewValuesAfterConstruct()
+    public function test_allPropertiesGetNewValuesAfterConstruct()
     {
         $processSet = $this->makeSetForScenario('StraightProcessThread');
         $original_value = $processSet->getDefaultPropertyValues();
@@ -103,6 +103,7 @@ class ProcessSetTest extends TestCase
         $processSet = $this->makeSetForScenario($scenario);
 //        debug($processSet->getMaxDuration());
         $this->assertEquals(1,1);
+        $processSet->getGridDimensions();
     }
 
     public function process_sorter_provider()
