@@ -8,14 +8,14 @@ use RecursiveArrayIterator;
 
 class ProcessSet
 {
-    private array $keydById;
+    protected array $keydById;
     protected array $keyedByPrereq;
     protected array $iteratorSeed = [];
     protected array $prereqChain = [];
     protected array $threadEnds = [];
     protected $count = 0;
     protected $durationLookup = [];
-    private $threadPaths;
+    protected $threadPaths;
 
     /**
      * @param Process[] $processes
