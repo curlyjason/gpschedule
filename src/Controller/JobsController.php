@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Utilities\ProcessSet;
+
 /**
  * Jobs Controller
  *
@@ -39,7 +41,9 @@ class JobsController extends AppController
             'contain' => ['Items', 'Processes'],
         ]);
 
-        $this->set(compact('job'));
+        $processSet = new ProcessSet($job->processes, $job);
+
+        $this->set(compact('processSet'));
     }
 
     /**
