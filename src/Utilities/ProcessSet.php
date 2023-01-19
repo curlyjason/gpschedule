@@ -17,6 +17,7 @@ class ProcessSet
     protected $count = 0;
     protected $durationLookup = [];
     protected $threadPaths;
+    protected $threadCountAt;
 
     /**
      * @param Process[] $processes
@@ -29,6 +30,7 @@ class ProcessSet
         $this->setThreadPaths();
         $this->registerDurations($this->threadPaths);
         $this->initIteratorSeed($this->getFollowersOf(''));
+        $this->setThreadCountAt();
     }
 
     /**
@@ -234,6 +236,36 @@ class ProcessSet
                 }
             });
     }
+
+    public function threadCountAt($process_id)
+    {
+        return $this->threadCountAt[$process_id];
+    }
+
+    public function setThreadCountAt()
+    {
+        collection($this->threadPaths)
+            ->map(function($path){
+                $array = explode('.', $path);
+                collection($array)
+                    ->map(function($process){
+                        $this->threadCountAt[$process] =
+                        !empty($this->threadCountAt[$process])
+                        ? $this->threadCountAt[$process] + 1
+                        : 1;
+                    })->toArray();
+            })->toArray();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getThreadCountAt()
+    {
+        return $this->threadCountAt;
+    }
+
+
 
 }
 

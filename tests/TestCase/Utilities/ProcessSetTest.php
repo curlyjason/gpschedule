@@ -101,7 +101,8 @@ class ProcessSetTest extends TestCase
     public function test_Development(string $scenario, array $expected)
     {
         $processSet = $this->makeSetForScenario($scenario);
-//        debug($processSet->getMaxDuration());
+        debug($processSet->getThreadPaths());
+        debug($processSet->getThreadCountAt());
         $this->assertEquals(1,1);
         $processSet->getGridDimensions();
     }
