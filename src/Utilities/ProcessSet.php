@@ -2,6 +2,7 @@
 
 namespace App\Utilities;
 
+use App\Model\Entity\Job;
 use App\Model\Entity\Process;
 use Cake\Utility\Hash;
 use JetBrains\PhpStorm\ArrayShape;
@@ -18,11 +19,12 @@ class ProcessSet
     protected $durationLookup = [];
     protected $threadPaths;
     protected $threadCountAt;
+    protected Job $job;
 
     /**
      * @param Process[] $processes
      */
-    public function __construct(array $processes)
+    public function __construct(array $processes, Job $job)
     {
         $this->setKeyById($processes);
         $this->buildFollowerLookup();
@@ -31,6 +33,7 @@ class ProcessSet
         $this->registerDurations($this->threadPaths);
         $this->initIteratorSeed($this->getFollowersOf(''));
         $this->setThreadCountAt();
+        $this->setJob($job);
     }
 
     /**
@@ -262,7 +265,18 @@ class ProcessSet
         return $this->threadCountAt;
     }
 
+    private function setJob(Job $job)
+    {
+        $this->job = $job;
+    }
 
-
+    /**
+     * @return Job
+     */
+    public function getJob(): Job
+    {
+        return $this->job;
+    }
+    
 }
 

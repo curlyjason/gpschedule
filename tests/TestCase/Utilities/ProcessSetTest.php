@@ -2,6 +2,7 @@
 
 namespace App\Test\TestCase\Utilities;
 
+use App\Model\Entity\Job;
 use App\Test\Factory\JobFactory;
 use App\Test\Factory\ProcessFactory;
 use App\Test\TestDoubles\ProcessSetDouble;
@@ -214,7 +215,8 @@ class ProcessSetTest extends TestCase
      */
     public function test_process_sorter($prereqLookup, $expectedResult)
     {
-        $SetManager = new ProcessSetDouble([]);
+        $job = new Job([]);
+        $SetManager = new ProcessSetDouble([], $job);
         $SetManager->setKeyedByPrereq($prereqLookup);
 
         $actual = $SetManager->initIteratorSeed();
@@ -237,7 +239,7 @@ class ProcessSetTest extends TestCase
     {
         $job = JobFactory::make()->persist();
         $this->loadFixtureScenario($scenario, $job);
-        return new ProcessSetDouble($this->getRecords('Processes'));
+        return new ProcessSetDouble($this->getRecords('Processes'), $job);
     }
 
     /**
