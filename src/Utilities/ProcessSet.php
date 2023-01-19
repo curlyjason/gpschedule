@@ -277,6 +277,24 @@ class ProcessSet
     {
         return $this->job;
     }
-    
+
+    public function __debugInfo(): ?array
+    {
+        $object_vars = get_object_vars($this);
+        $processes = collection ($object_vars['keydById'])
+            ->map(function(Process $process){
+                unset($process->modified, $process->created);
+                return $process->toArray();
+            })->toArray();
+        $object_vars['keydById'] = $processes;
+        debug($object_vars['keydById']);
+        return $object_vars['keydById'];
+//        return $object_vars;
+    }
+
+    public function getProcesses()
+    {
+        return $this->keydById;
+    }
 }
 
