@@ -7,8 +7,10 @@ use App\Test\Factory\JobFactory;
 use App\Test\Factory\ProcessFactory;
 use App\Test\TestDoubles\ProcessSetDouble;
 use App\Test\Traits\RetrievalTrait;
+use App\Test\Utilities\DebugTrait;
 use App\Test\Utilities\ProcessThread;
 use App\Utilities\ProcessSet;
+use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 use Cake\Utility\Hash;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -17,6 +19,8 @@ class ProcessSetTest extends TestCase
 {
     use ScenarioAwareTrait;
     use RetrievalTrait;
+    use IntegrationTestTrait;
+    use DebugTrait;
 
     public function threadScenarioProvider()
     {
@@ -102,8 +106,9 @@ class ProcessSetTest extends TestCase
     public function test_Development(string $scenario, array $expected)
     {
         $processSet = $this->makeSetForScenario($scenario);
-        debug($processSet->getThreadPaths());
-        debug($processSet->getThreadCountAt());
+        $job_id = $processSet->getJob()->id;
+        $this->get("jobs/view/$job_id");
+        $this->writeFile($scenario);
         $this->assertEquals(1,1);
         $processSet->getGridDimensions();
     }
