@@ -239,7 +239,7 @@ class ProcessSet
 
     public function threadCountAt($process_id)
     {
-        return $this->threadCountAt[$process_id];
+        return $this->threadCountAt[$process_id] ?? null;
     }
 
     public function setThreadCountAt()
@@ -249,10 +249,7 @@ class ProcessSet
                 $array = explode('.', $path);
                 collection($array)
                     ->map(function($process){
-                        $this->threadCountAt[$process] =
-                        !empty($this->threadCountAt[$process])
-                        ? $this->threadCountAt[$process] + 1
-                        : 1;
+                        $this->threadCountAt[$process] = ($this->threadCountAt($process) ?? 0) + 1;
                     })->toArray();
             })->toArray();
     }
