@@ -41,7 +41,7 @@ trait DebugTrait
         $file_name = "$name.html";
         $file = new File(WWW_ROOT . $file_name);
         $result = $file->write($this->_getBodyAsString(), 'w', true);
-        debug($result ? "http://dev.ampfg4.com/$file_name" : "failed to write $file_name");
+        debug($result ? "http://localhost/gpschedule/$file_name" : "failed to write $file_name");
         $file->close();
     }
 
