@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Utilities\ProcessSet;
+use Cake\Datasource\ConnectionManager;
 
 /**
  * Jobs Controller
@@ -37,6 +38,7 @@ class JobsController extends AppController
      */
     public function view($id = null)
     {
+        ConnectionManager::alias('test', 'default');
         $job = $this->Jobs->get($id, [
             'contain' => ['Items', 'Processes'],
         ]);
@@ -44,6 +46,7 @@ class JobsController extends AppController
         $processSet = new ProcessSet($job->processes, $job);
 
         $this->set(compact('processSet'));
+        ConnectionManager::dropAlias('default');
     }
 
     /**
