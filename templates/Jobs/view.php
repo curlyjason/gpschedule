@@ -1,22 +1,13 @@
 <?php
 /**
- * @var \App\View\AppView $this
- * @var \App\Model\Entity\Job $job
- * @var \App\Utilities\ProcessSet $processSet
+ * @var AppView $this
+ * @var Job $job
+ * @var ProcessSet $processSet
  */
 
-use App\Model\Entity\Process;
+use App\Model\Entity\Job;
+use App\Utilities\ProcessSet;
+use App\View\AppView;
 
-//$processes = $processSet->getProcesses();
-$processes = collection ($processSet->getProcesses())
-    ->map(function(Process $process){
-        unset($process->modified, $process->created);
-        $process->start_date = $process->start_date->format('Y-m-d');
-        return $process->toArray();
-    })->toArray();
+osd($processSet);
 
-echo "Thread Paths";
-pre($processSet->getThreadPaths());
-echo "Processes";
-pre($processes);
-?>
