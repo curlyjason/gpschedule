@@ -28,7 +28,7 @@ use Cake\Validation\Validator;
  * @method \App\Model\Entity\StandardsTemplate[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
  * @method \App\Model\Entity\StandardsTemplate[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
  */
-class StandardsTemplatesTable extends Table
+class StandardsTemplatesTable extends AppTable
 {
     /**
      * Initialize method
