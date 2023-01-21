@@ -36,12 +36,13 @@ class JobsController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = 1107741851)
+    public function view($id = null)
     {
 //        ConnectionManager::alias('test', 'default');
-        $job = $this->Jobs->get($id, [
+        $job = $this->Jobs->find('all', [
             'contain' => ['Items', 'Processes'],
-        ]);
+        ])
+        ->first();
 
         $processSet = new ProcessSet($job->processes, $job);
 
