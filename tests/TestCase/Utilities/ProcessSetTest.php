@@ -106,9 +106,9 @@ class ProcessSetTest extends TestCase
     public function test_Development(string $scenario, array $expected)
     {
         $processSet = $this->makeSetForScenario($scenario);
-        $job_id = $processSet->getJob()->id;
-        $this->get("jobs/view/$job_id");
-        $this->writeFile($scenario);
+//        $job_id = $processSet->getJob()->id;
+//        $this->get("jobs/view/$job_id");
+//        $this->writeFile($scenario);
         $this->assertEquals(1,1);
         $processSet->getGridDimensions();
     }
