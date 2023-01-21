@@ -1,6 +1,9 @@
 <style>
     table, th, td {
         border: 1px solid black;
+        text-align: center;
+        padding: 0;
+        margin: 3px;
     }
 </style>
 
@@ -16,11 +19,7 @@ use App\Model\Entity\Job;
 use App\Utilities\ProcessSet;
 use App\View\AppView;
 
-osd($processSet);
-foreach ($processSet->getThreadPaths() as $index => $threadPath) {
-    $threads[$index] = explode('.', $threadPath);
-}
-osd($threads);
+$threads = $processSet->getThreadPaths($processSet::EXPLODED);
 $grid = $processSet->getGridDimensions();
 $used = [];
 
@@ -55,3 +54,11 @@ foreach (range(0, ($grid['steps']-1)) as $step_index) {
     echo "</tr>";
 }
 echo "</table>";
+
+echo '<p> </p>';
+echo '<p> </p>';
+echo '<p> </p>';
+echo '<p> 3</p>';
+echo '<p> 3</p>';
+echo '<p> 3</p>';
+echo '<p> 3</p>';
