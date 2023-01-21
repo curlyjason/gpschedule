@@ -110,7 +110,7 @@ class ProcessSetTest extends TestCase
 //        $this->get("jobs/view/$job_id");
 //        $this->writeFile($scenario);
         $this->assertEquals(1,1);
-        $processSet->getGridDimensions();
+        debug($processSet->pathSegment($processSet::TO, 115));
     }
 
     public function process_sorter_provider()
@@ -232,7 +232,7 @@ class ProcessSetTest extends TestCase
     public function test_getIterator()
     {
         $processSet = $this->makeSetForScenario('StraightProcessThread');
-        $iterator = ($processSet->getIteratorSeedIterator());
+        $iterator = ($processSet->getTreeIterator());
         $this->assertInstanceOf(\RecursiveArrayIterator::class, $iterator);
     }
 

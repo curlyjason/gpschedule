@@ -10,12 +10,16 @@ use RecursiveArrayIterator;
 
 class ProcessSet
 {
+    const DOT_PATH = true;
+    const EXPLODED = false;
+    const TO = true;
+    const FROM = false;
+
     protected array $keydById;
     protected array $keyedByPrereq;
     protected array $iteratorSeed = [];
     protected array $prereqChain = [];
     protected array $threadEnds = [];
-    protected $count = 0;
     protected $durationLookup = [];
     protected $threadPaths;
     protected $threadCountAt;
@@ -26,14 +30,230 @@ class ProcessSet
      */
     public function __construct(array $processes, Job $job)
     {
-        $this->setKeyById($processes);
-        $this->buildFollowerLookup();
-        $this->setThreadEnds();
-        $this->setThreadPaths();
+        $this->initKeyById($processes);
+        $this->initFollowerLookup();
+        $this->initThreadEnds();
+        $this->initThreadPaths();
         $this->registerDurations($this->threadPaths);
         $this->initIteratorSeed($this->getFollowersOf(''));
-        $this->setThreadCountAt();
-        $this->setJob($job);
+        $this->initThreadCountAt();
+        $this->initJob($job);
+    }
+
+    //<editor-fold desc="CLASS INITIALIZER METHODS">
+    protected function initThreadPaths()
+    {
+        $this->threadPaths = collection($this->getThreadEnds())
+            ->reduce(function($accum, $endpoint, $index) {
+                $path = $this->buildPathTo($endpoint);
+                $accum[$index] = $path;
+                return $accum;
+            }, []);
+    }
+
+    private function initFollowerLookup()
+    {
+        $keys = array_keys($this->keydById);
+        $this->keyedByPrereq = array_fill_keys($keys, []);
+        collection($keys)
+            ->each(function($key) {
+                $this->keyedByPrereq[$this->getPrereqOf($key)][] = $key;
+            })
+            ->toArray();
+    }
+
+    protected function initIteratorSeed($followers = null, $path = '0'): array
+    {
+        $followers = $followers ?? $this->getInitialProcessesKeys();
+        $split = count($followers) > 1;
+
+        collection ($followers)->map(function($follower, $index) use ($path, $split){
+
+            $path = $split ? $this->splitPath($path, $index) : $path ;
+            $this->iteratorSeed =
+                Hash::insert($this->iteratorSeed, $path, $follower);
+            $path = $this->incrementPath($path);
+
+            $this->initIteratorSeed($this->getFollowersOf($follower), $path);
+        })->toArray();
+
+        return $this->iteratorSeed;
+    }
+
+    /**
+     * @param array $processes
+     * @return void
+     */
+    private function initKeyById(array $processes): void
+    {
+        $this->keydById = collection($processes)
+            ->indexBy(function ($process) {
+                return $process->id;
+            })
+            ->toArray();
+    }
+
+    /**
+     * @return void
+     */
+    private function initThreadEnds(): void
+    {
+        collection($this->keyedByPrereq)
+            ->each(function ($node, $id) {
+                if (empty($node)) {
+                    $this->threadEnds[] = $id;
+                }
+            });
+    }
+
+    private function initThreadCountAt()
+    {
+        collection($this->threadPaths)
+            ->map(function($path){
+                $array = explode('.', $path);
+                collection($array)
+                    ->map(function($process){
+                        $this->threadCountAt[$process] = ($this->threadCountAt($process) ?? 0) + 1;
+                    })->toArray();
+            })->toArray();
+    }
+
+    private function initJob(Job $job)
+    {
+        $this->job = $job;
+    }
+
+    private function registerDurations(mixed $path)
+    {
+        foreach($this->threadPaths as $path) {
+            $total = 0;
+            $a = explode('.', $path);
+            sort($a);
+            foreach($a as $key) {
+                $total = $total + $this->getProcess($key)->duration;
+                $this->durationLookup[$key] = $total;
+            }
+        }
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    private function incrementPath(string $path): string
+    {
+        $callable = function($last) {return ++$last;};
+        return $this->modifyLastPathEntry($path,$callable);
+    }
+
+    private function splitPath(mixed $path, $index): string
+    {
+        $callable = function($last) use ($index ){return ($last + $index) . '.0';};
+        return $this->modifyLastPathEntry($path,$callable);
+    }
+
+    private function modifyLastPathEntry($path, $callable) {
+        $pathArray = explode('.', $path);
+        $last = array_pop($pathArray);
+        $pathArray[] = $callable($last);
+        return implode('.', $pathArray);
+    }
+
+    private function getInitialProcessesKeys(): array
+    {
+        return $this->getFollowersOf('');
+    }
+
+    private function buildPathTo($endpoint)
+    {
+        $process = $this->getProcess($endpoint);
+        $path = $endpoint;
+        while ($process->prereq != null) {
+            $path = "$process->prereq.$path";
+            $process = $this->getProcess($process->prereq);
+        }
+        return $path;
+    }
+//</editor-fold>
+
+
+    //<editor-fold desc="ENTITIES AND ENTITY SETS">
+    /**
+     * @return Job
+     */
+    public function getJob(): Job
+    {
+        return $this->job;
+    }
+
+    public function getProcesses()
+    {
+        return $this->keydById;
+    }
+
+    /**
+     * Return a fresh iterator
+     *
+     * @return RecursiveArrayIterator
+     */
+    public function getTreeIterator(): RecursiveArrayIterator
+    {
+        return new RecursiveArrayIterator($this->iteratorSeed);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="STURCTURAL INFORMATION">
+    public function getThreadCount()
+    {
+        return count($this->getThreadEnds());
+    }
+
+    public function getLongestThreadStepCount()
+    {
+        return collection($this->threadPaths)
+            ->reduce(function($accum, $path){
+                $array = explode('.', $path);
+                $accum = count($array) > $accum ? count($array) : $accum;
+                return $accum;
+            },0);
+    }
+
+    #[ArrayShape(['threads' => "int", 'steps' => "int"])]
+    public function getGridDimensions()
+    {
+        $columns = count($this->threadPaths);
+        $rows = $this->getLongestThreadStepCount();
+
+        return ['threads' => $columns, 'steps' =>$rows];
+    }
+
+    public function getMaxDuration()
+    {
+        return max($this->durationLookup);
+    }
+
+    /**
+     * @param bool $as self::DOT_PATH|self::EXPLODE
+     * @return array
+     */
+    public function getThreadPaths($as = self::DOT_PATH)
+    {
+        if ($as === self::DOT_PATH) {
+            return $this->threadPaths;
+        }
+        return collection($this->threadPaths)
+            ->map(function($path) {
+                return explode('.', $path);
+            })->toArray();
+    }
+
+    public function getThreadEnds()
+    {
+        return $this->threadEnds;
+    }
+
+    {
+            })->toArray();
     }
 
     /**
@@ -69,230 +289,15 @@ class ProcessSet
         return $this->keydById[$key] ?? null;
     }
 
-    public function getThreadCount()
-    {
-        return count($this->getThreadEnds());
-    }
-
-    public function getLongestThreadStepCount()
-    {
-        return $this->getIteratorSeedIterator()->count();
-    }
-
-    #[ArrayShape(['threads' => "int", 'steps' => "int"])]
-    public function getGridDimensions()
-    {
-        $columns = count($this->threadPaths);
-        $rows = collection($this->threadPaths)
-            ->reduce(function($accum, $path){
-                $array = explode('.', $path);
-                $accum = count($array) > $accum ? count($array) : $accum;
-                return $accum;
-            },0);
-
-        return ['threads' => $columns, 'steps' =>$rows];
-    }
-
-    public function getMaxDuration()
-    {
-        return max($this->durationLookup);
-    }
-
-    public function getThreadPaths()
-    {
-        return $this->threadPaths;
-    }
-
-    protected function setThreadPaths()
-    {
-        $this->threadPaths = collection($this->getThreadEnds())
-            ->reduce(function($accum, $endpoint, $index) {
-                $path = $this->buildPathTo($endpoint);
-                $accum[$index] = $path;
-                return $accum;
-            }, []);
-    }
-
-    /**
-     * Return a fresh iterator
-     *
-     * @return RecursiveArrayIterator
-     */
-    public function getIteratorSeedIterator(): RecursiveArrayIterator
-    {
-        return new RecursiveArrayIterator($this->iteratorSeed);
-    }
-
-    private function getInitialProcessesKeys(): array
-    {
-        return $this->getFollowersOf('');
-    }
-
-    private function buildFollowerLookup()
-    {
-        $keys = array_keys($this->keydById);
-        $this->keyedByPrereq = array_fill_keys($keys, []);
-        collection($keys)
-            ->each(function($key) {
-                $this->keyedByPrereq[$this->getPrereqOf($key)][] = $key;
-            })
-            ->toArray();
-    }
-
-    protected function initIteratorSeed($followers = null, $path = '0'): array
-    {
-        $followers = $followers ?? $this->getInitialProcessesKeys();
-        $split = count($followers) > 1;
-
-        collection ($followers)->map(function($follower, $index) use ($path, $split){
-
-            $path = $split ? $this->splitPath($path, $index) : $path ;
-            $this->iteratorSeed =
-                Hash::insert($this->iteratorSeed, $path, $follower);
-            $path = $this->incrementPath($path);
-
-            $this->initIteratorSeed($this->getFollowersOf($follower), $path);
-        })->toArray();
-
-        return $this->iteratorSeed;
-    }
-
-    /**
-     * @param string $path
-     * @return string
-     */
-    private function incrementPath(string $path): string
-    {
-        $callable = function($last) {return ++$last;};
-        return $this->modifyLastPathEntry($path,$callable);
-    }
-
-    private function splitPath(mixed $path, $index): string
-    {
-        $callable = function($last) use ($index ){return ($last + $index) . '.0';};
-        return $this->modifyLastPathEntry($path,$callable);
-    }
-
-    private function modifyLastPathEntry($path, $callable) {
-        $pathArray = explode('.', $path);
-        $last = array_pop($pathArray);
-        $pathArray[] = $callable($last);
-        return implode('.', $pathArray);
-    }
-
-    public function getThreadEnds()
-    {
-        return $this->threadEnds;
-    }
-
-    private function buildPathTo($endpoint)
-    {
-        $process = $this->getProcess($endpoint);
-        $path = $endpoint;
-        while ($process->prereq != null) {
-            $path = "$process->prereq.$path";
-            $process = $this->getProcess($process->prereq);
-        }
-        return $path;
-    }
-
-    private function registerDurations(mixed $path)
-    {
-        foreach($this->threadPaths as $path) {
-            $total = 0;
-            $a = explode('.', $path);
-            sort($a);
-            foreach($a as $key) {
-                $total = $total + $this->getProcess($key)->duration;
-                $this->durationLookup[$key] = $total;
-            }
-        }
-    }
-
     public function getDuration($key)
     {
         return $this->durationLookup[$key] ?? null;
-    }
-
-    /**
-     * @param array $processes
-     * @return void
-     */
-    private function setKeyById(array $processes): void
-    {
-        $this->keydById = collection($processes)
-            ->indexBy(function ($process) {
-                return $process->id;
-            })
-            ->toArray();
-    }
-
-    /**
-     * @return void
-     */
-    private function setThreadEnds(): void
-    {
-        collection($this->keyedByPrereq)
-            ->each(function ($node, $id) {
-                if (empty($node)) {
-                    $this->threadEnds[] = $id;
-                }
-            });
     }
 
     public function threadCountAt($process_id)
     {
         return $this->threadCountAt[$process_id] ?? null;
     }
-
-    public function setThreadCountAt()
-    {
-        collection($this->threadPaths)
-            ->map(function($path){
-                $array = explode('.', $path);
-                collection($array)
-                    ->map(function($process){
-                        $this->threadCountAt[$process] = ($this->threadCountAt($process) ?? 0) + 1;
-                    })->toArray();
-            })->toArray();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getThreadCountAt()
-    {
-        return $this->threadCountAt;
-    }
-
-    private function setJob(Job $job)
-    {
-        $this->job = $job;
-    }
-
-    /**
-     * @return Job
-     */
-    public function getJob(): Job
-    {
-        return $this->job;
-    }
-
-//    public function __debugInfo(): ?array
-//    {
-//        $object_vars = get_object_vars($this);
-//        $processes = collection ($object_vars['keydById'])
-//            ->map(function(Process $process){
-//                unset($process->modified, $process->created);
-//                return $process->toArray();
-//            })->toArray();
-//        $object_vars['keydById'] = $processes;
-//        return $object_vars;
-//    }
-
-    public function getProcesses()
-    {
-        return $this->keydById;
-    }
+    //</editor-fold>
 }
 
