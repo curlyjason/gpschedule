@@ -252,10 +252,42 @@ class ProcessSet
         return $this->threadEnds;
     }
 
+    /**
+     * @param bool $direction self::TO|self::FROM
+     * @param $process_id
+     * @return array
+     */
+    public function pathSegment(bool $direction, $process_id) : array
     {
+        $pattern = $direction
+            ? '/.*\W' . $process_id . '/'
+            : '/\W' . $process_id . '.*/';
+
+        return collection($this->getThreadPaths())
+            ->map(function($path) use ($pattern) {
+                return preg_split($pattern, $path);
+//                $result = preg_match($pattern, $path, $match);
+//                if ($result) {
+//                    debug($match);
+//                }
             })->toArray();
     }
 
+    protected function makeSetMember($process_id) {
+        $construct_args = [
+            'followers' => $this->getFollowersOf($process_id),
+            'cumulative_duration' => $this->getDuration($process_id),
+            'child_thread_count' => $this->threadCountAt($process_id),
+            'path' => $this->pathSegment(self::TO, $process_id),
+        ];
+        return new ProcessSetMember(
+            $this->getProcess($process_id),
+            $construct_args
+        );
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="LOOKUPS AND DATA BY PROCESS-ID">
     /**
      * Get the id of the prerequisite Process
      *
