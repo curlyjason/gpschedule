@@ -106,11 +106,12 @@ class ProcessSetTest extends TestCase
     public function test_Development(string $scenario, array $expected)
     {
         $processSet = $this->makeSetForScenario($scenario);
-//        $job_id = $processSet->getJob()->id;
-//        $this->get("jobs/view/$job_id");
-//        $this->writeFile($scenario);
+        debug($processSet->getThreadPaths());
+
         $this->assertEquals(1,1);
-        debug($processSet->pathSegment($processSet::TO, 115));
+
+        debug($processSet->pathSegment($processSet::BEFORE, 104));
+        debug($processSet->pathSegment($processSet::AFTER, 104));
     }
 
     public function process_sorter_provider()

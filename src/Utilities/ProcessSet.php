@@ -12,8 +12,8 @@ class ProcessSet
 {
     const DOT_PATH = true;
     const EXPLODED = false;
-    const TO = true;
-    const FROM = false;
+    const BEFORE = true;
+    const AFTER = false;
 
     protected array $keydById;
     protected array $keyedByPrereq;
@@ -253,24 +253,23 @@ class ProcessSet
     }
 
     /**
-     * @param bool $direction self::TO|self::FROM
+     * @param bool $segment self::BEFORE|self::AFTER
      * @param $process_id
      * @return array
      */
-    public function pathSegment(bool $direction, $process_id) : array
+    public function pathSegment(bool $segment, $process_id, bool $greedy = true) : array
     {
-        $pattern = $direction
-            ? '/.*\W' . $process_id . '/'
-            : '/\W' . $process_id . '.*/';
+        $pattern = $segment === self::BEFORE
+            ? '/.*\b'.$process_id.'\b/'
+            : '/\b' . $process_id . '\b.*/';
 
-        return collection($this->getThreadPaths())
+        $split = collection($this->getThreadPaths())
             ->map(function($path) use ($pattern) {
-                return preg_split($pattern, $path);
-//                $result = preg_match($pattern, $path, $match);
-//                if ($result) {
-//                    debug($match);
-//                }
+                preg_match($pattern, $path, $matches, PREG_OFFSET_CAPTURE);
+                return $matches;
             })->toArray();
+
+        return $split;
     }
 
     protected function makeSetMember($process_id) {
@@ -278,7 +277,7 @@ class ProcessSet
             'followers' => $this->getFollowersOf($process_id),
             'cumulative_duration' => $this->getDuration($process_id),
             'child_thread_count' => $this->threadCountAt($process_id),
-            'path' => $this->pathSegment(self::TO, $process_id),
+            'path' => $this->pathSegment(self::BEFORE, $process_id),
         ];
         return new ProcessSetMember(
             $this->getProcess($process_id),
